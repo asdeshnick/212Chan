@@ -1,4 +1,5 @@
-from app import db
+from database import db
+
 
 class Boards(db.Model):
     __tablename__ = 'boards'

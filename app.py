@@ -10,9 +10,9 @@ Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
-app.config.from_pyfile('config.py')
-
-db = SQLAlchemy(app)
+app.config.from_object('config')
+db.init_app(app)
+# db = SQLAlchemy(app)
 
 # Создайте все таблицы (вместо @app.before_first_request)
 with app.app_context():

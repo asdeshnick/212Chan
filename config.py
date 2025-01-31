@@ -4,7 +4,7 @@
 
 DEBUG = False
 SECRET_KEY = 'ya-hochu-piva'
-SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/posts.db'
+SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/andrejmarcenko/Documents/clone_4chan/instance/posts.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 BUMP_LIMIT         = 100
