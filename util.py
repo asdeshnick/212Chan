@@ -3,7 +3,8 @@ from time import time
 from os.path import join
 from PIL import Image
 from models import Boards, Posts
-from app import db
+from __init__ import app
+from database import db
 from datetime import datetime
 
 from config import *

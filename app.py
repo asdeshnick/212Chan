@@ -4,20 +4,24 @@ from datetime import datetime
 from flask_misaka import Misaka
 from config import *  # Убедитесь, что в config.py правильно настроены параметры
 from util import *
+from __init__ import app
+from database import db
+
 
 app = Flask(__name__)
+db = SQLAlchemy()
+db.init_app(app)
+
 Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
 app.config.from_object('config')
-db.init_app(app)
+# db.init_app(app)
 # db = SQLAlchemy(app)
 
-# Создайте все таблицы (вместо @app.before_first_request)
 with app.app_context():
     db.create_all()
-
 @app.route('/')
 def show_frontpage():
     return render_template('home.html')
