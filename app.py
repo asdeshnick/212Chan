@@ -2,26 +2,21 @@ from flask import Flask, request, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_misaka import Misaka
-from config import *  # Убедитесь, что в config.py правильно настроены параметры
 from util import *
-from __init__ import app
 from database import db
-
+import config
 
 app = Flask(__name__)
-db = SQLAlchemy()
+app.config.from_object(config)
 db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
-app.config.from_object('config')
-# db.init_app(app)
-# db = SQLAlchemy(app)
-
-with app.app_context():
-    db.create_all()
 @app.route('/')
 def show_frontpage():
     return render_template('home.html')
@@ -103,5 +98,5 @@ def delete():
 
 if __name__ == '__main__':
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
-    print(' * Database is', SQLALCHEMY_DATABASE_URI)
+    print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])
     app.run(debug=True)

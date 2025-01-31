@@ -69,13 +69,13 @@ def get_sidebar(board):
 def new_post(board, op_id = 0):
     newPost = Posts(board   = board,
                     name    = request.form['name'],
-                    subject = request.form['subject'],
-                    email   = request.form['email'],
                     text    = request.form['post_content'],
                     date    = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     fname   = upload_file(),
                     op_id   = op_id, # Threads are normal posts with op_id set to 0
                     deleted = False)
+    db.session.add(newPost)
+    db.session.commit()
     return newPost
 
 def bump_thread(op_id):

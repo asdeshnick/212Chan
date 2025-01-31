@@ -1,11 +1,12 @@
 # This configuration file is provided to make testing easy. Your real
 # configuration should not be checked into source control. See:
 # http://blog.arvidandersson.se/2013/06/10/credentials-in-git-repos
+import os
 
-DEBUG = False
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.abspath('instance/posts.db')
+DEBUG = True
 SECRET_KEY = 'ya-hochu-piva'
-SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/andrejmarcenko/Documents/clone_4chan/instance/posts.db'
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 BUMP_LIMIT         = 100
 BOARDS             = ['create','learn','media','meta']
