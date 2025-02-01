@@ -15,7 +15,6 @@ class Posts(db.Model):
     board     = db.Column(db.String)
     name      = db.Column(db.String)
     subject   = db.Column(db.String)
-    email     = db.Column(db.String)
     date      = db.Column(db.String)
     fname     = db.Column(db.String)
     text      = db.Column(db.Text)

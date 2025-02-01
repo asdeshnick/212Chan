@@ -1,19 +1,26 @@
 body {
-	color: black;
-	background: #EEF2FF;
+	color: #ffffff;
+	background: black;
 	margin: 0;
 }
+.header {
+	background: #000000;
+	color: #be1b1b;
+	padding: 10px;
+}
 a {
-	color: #405086;
+	color: #ffffff;
 	text-decoration: none;
 }
 p {
 	margin: 10px 0;
 }
 
+
 textarea, input {
-	border: 1px solid #aaa;
-	background-color: #eef2ff;
+	field-sizing: content;
+	/* border: 1px solid #aaa; */
+	background-color: #e6e6e638;
 	padding: 4px;
 	color: #444;
 	margin: 0;
@@ -21,7 +28,7 @@ textarea, input {
 }
 
 th {
-	background-color: #98E;
+	background-color: rgba(241, 241, 246, 0.397);
 	border: solid 1px #000;
 }
 
@@ -31,13 +38,13 @@ hr {
 }
 
 blockquote {
-	border-left: 2px solid #EEF2FF;
+	border-left: 2px solid #eef2ff66;
 	padding: 0px 8px;
 	margin: 0;
 }
 
 .post, .catalog {
-	background: #D6DAF0;
+	background: #ffffff07;
 	border-radius: 2px;
 	display: table;
 	padding: 6px 8px 0 8px;
@@ -66,6 +73,11 @@ blockquote {
 	padding: 10px 10px 10px 0px;
 }
 
+.img_home {
+	transform: scale(1.5);
+	margin: 40px;
+}
+
 #wrap {
 	width: 1000px;
 	margin: 50px auto;
@@ -78,7 +90,7 @@ blockquote {
 	width: 300px;
 	height:600px;
 	float: right;
-	background: #D6DAF0;
+	background: #3e3e3e;
 	border-radius: 2px;
 	display: table;
 	padding: 10px;
