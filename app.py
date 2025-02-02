@@ -78,15 +78,16 @@ def new_thread():
 def add_reply():
     board = request.form['board']
     thread = request.form['op_id']
+    print(thread, board)
     if no_content_or_image():
         return redirect('/' + board + '/')
 
     newPost = new_post(board, thread)
     db.session.add(newPost)
-    if 'sage' not in request.form['email'] and reply_count(thread) < BUMP_LIMIT:
+    if reply_count(thread) < BUMP_LIMIT:
         bump_thread(thread)
     db.session.commit()
-    return redirect('/' + board + '/' + thread)
+    return redirect('/' + board + '/') #+ thread)
 
 @app.route('/del')
 def delete():
