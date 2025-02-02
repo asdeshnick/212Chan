@@ -6,13 +6,7 @@
 <div class=catalog>
 	<div class='byline'>
 		<span>{{ entry.subject }}</span>
-		<span>
-			{% if entry.email %}
-			<a href="mailto:{{ entry.email }}">{{ entry.name }}</a>
-			{% else %}
-			{{ entry.name }}
-			{% endif %}
-		</span>
+		<span>{{ entry.name }}</span>
 		<span>{{ entry.date }}</span>
 	</div>
 	<div class='post_body' id='{{ entry.id }}'>

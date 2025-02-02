@@ -12,13 +12,7 @@
 {% endif %}
 	<div class='byline'>
 		<span>{{ entry.subject }}</span>
-		<span>
-			<!-- {% if entry.email %}
-			<a href="mailto:{{ entry.email }}">{{ entry.name }}</a>
-			{% else %} -->
-			{{ entry.name }}
-			<!-- {% endif %} -->
-		</span>
+		<span>{{ entry.name }}</span>
 		<span>{{ entry.date }}</span>
 		<a href='#{{ entry.id }}' onclick="cite({{ entry.id }})">#{{ entry.id }}</a>
 		<a href="{{ url_for('delete') }}?id={{entry.id}}&board={{board}}&thread={{entry.op_id}}">delete</a>

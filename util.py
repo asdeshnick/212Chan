@@ -1,4 +1,4 @@
-from flask import request, flash, redirect, url_for
+from flask import request, flash, redirect, url_for, abort
 from time import time
 from os.path import join
 from PIL import Image
@@ -6,7 +6,7 @@ from models import Boards, Posts
 from __init__ import app
 from database import db
 from datetime import datetime
-
+import logging
 from config import *
 
 def board_inexistent(name):
@@ -66,7 +66,10 @@ def get_thread_OP(id):
 def get_sidebar(board):
     return db.session.query(Boards).filter_by(name=board).first()
 
-def new_post(board, op_id = 0):
+def new_post(board, op_id = 1):
+    if 'name' not in request.form or 'post_content' not in request.form:
+        flash('Must include name and post content')
+        return None
     newPost = Posts(board   = board,
                     name    = request.form['name'],
                     text    = request.form['post_content'],
@@ -79,15 +82,28 @@ def new_post(board, op_id = 0):
     return newPost
 
 def bump_thread(op_id):
-    OP = db.session.query(Posts).filter_by(id = op_id).first()
-    OP.last_bump = datetime.now()
-    db.session.add(OP)
-
+    try:
+        OP = db.session.query(Posts).filter_by(id = op_id).first()
+        if OP is None:
+            flash('Post not found')
+            return None
+        OP.last_bump = datetime.now()
+        db.session.commit()
+        return True
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        return None
 def reply_count(op_id):
-    return db.session.query(Posts).filter_by(op_id = op_id).count()
+    replies = db.session.query(Posts).filter_by(op_id = op_id).all()
+    if replies is None:
+        return 0
+    return len(replies)
 
 def delete_post(id):
-    post = db.session.query(Posts).filter_by(id=id).one()
+    post = db.session.query(Posts).filter_by(id=id).first()
+    if post is None:
+        flash('Post not found')
+        return None
     post.deleted = True
     db.session.add(post)
     db.session.commit()

@@ -12,13 +12,7 @@
 {% endif %}
 	<div class='byline'>
 		<span>{{ entry.subject }}</span>
-		<span>
-			{% if entry.email %}
-			<a href="mailto:{{ entry.email }}">{{ entry.name }}</a>
-			{% else %}
-			{{ entry.name }}
-			{% endif %}
-		</span>
+		<span>{{ entry.name }}</span>
 		<span>{{ entry.date }}</span>
 		{% if not entry.op_id %}
 			<span><a href='{{ entry.id }}'>#{{ entry.id }}</a></span>

@@ -74,8 +74,8 @@ blockquote {
 }
 
 .img_home {
-	transform: scale(1.5);
-	margin: 40px;
+	transform: scale(1);
+	margin: 20px;
 }
 
 #wrap {
