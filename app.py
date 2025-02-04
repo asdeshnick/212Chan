@@ -7,7 +7,8 @@ from util import *
 from database import db
 import config
 import asyncio
-
+import requests
+import databsaeforloc
 
 
 app = Flask(__name__)
@@ -136,7 +137,37 @@ def delete():
     thread = request.args.get('thread')
     return redirect('/' + board + '/' + thread)
 
+
+
+def location(ip: str):
+    response = requests.get(f"http://ip-api.com/json/{ip}?lang=ru")
+    if response.status_code == 404:
+        print("Oops")
+    result = response.json()
+    if result["status"] == "fail":
+        return main1("Enter the correct IP address")
+
+    record = []
+
+    for key, value in result.items():
+        record.append(value)
+        print(f"[{key.title()}]: {value}")
+    return tuple(record)
+
+
+def main1(start: str):
+    print(start)
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    try:
+        new_data = location(ip)
+        databsaeforloc.base(new_data)
+    except ValueError:
+        pass
+
+
+
 if __name__ == '__main__':
+    main1("Enter the IP address")
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
     print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])
     app.run(debug=True)
