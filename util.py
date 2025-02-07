@@ -10,6 +10,7 @@ import logging
 from config import *
 
 def board_inexistent(name):
+    
     if name not in BOARDS:
         flash('board ' + name + ' does not exist')
         return True

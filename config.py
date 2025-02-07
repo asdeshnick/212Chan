@@ -9,7 +9,7 @@ SECRET_KEY = 'ya-hochu-piva'
 
 
 BUMP_LIMIT         = 100
-BOARDS             = ['create','learn','media','meta']
+BOARDS             = ['create','learn','media','meta, NSFW']
 UPLOAD_FOLDER      = 'static/images/'
 THUMBS_FOLDER      = 'static/thumbs/'
 ALLOWED_EXTENSIONS =  set(['png','jpg','jpeg','gif'])

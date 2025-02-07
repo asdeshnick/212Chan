@@ -8,7 +8,7 @@ from database import db
 import config
 import asyncio
 import requests
-import databsaeforloc
+# import using_IP.databsaeforloc as databsaeforloc
 import ipaddress
 
 
@@ -16,7 +16,7 @@ import ipaddress
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
-socketio = SocketIO(app, async_mode="threading")
+# socketio = SocketIO(app, async_mode="threading")
 
 with app.app_context():
     db.create_all()
@@ -25,34 +25,34 @@ Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
-@socketio.on('connect')
-def handle_connect():
-    print("Client connected")
+# @socketio.on('connect')
+# def handle_connect():
+#     print("Client connected")
 
-@socketio.on('new_message')
-async def handle_new_message(data):
-    message = data['message']
-    board = data['board']
-    thread = data['thread']
+# @socketio.on('new_message')
+# async def handle_new_message(data):
+#     message = data['message']
+#     board = data['board']
+#     thread = data['thread']
 
       
-    # Здесь должна быть логика сохранения нового сообщения в базу данных
-    await save_message_to_db(message, board, thread)
+#     # Здесь должна быть логика сохранения нового сообщения в базу данных
+#     await save_message_to_db(message, board, thread)
     
-    # Отправка обновленного списка сообщений всем подключенным клиентам
-    updated_messages = await fetch_updated_messages(board, thread)
-    socketio.emit('update_messages', {'messages': updated_messages}, broadcast=True)
+#     # Отправка обновленного списка сообщений всем подключенным клиентам
+#     updated_messages = await fetch_updated_messages(board, thread)
+#     socketio.emit('update_messages', {'messages': updated_messages}, broadcast=True)
 
-# Функция для получения обновленных сообщений
-async def fetch_updated_messages(board, thread):
-    # Логика получения сообщений из базы данных
-    messages = get_messages_from_db(board, thread)
-    return messages
+# # Функция для получения обновленных сообщений
+# async def fetch_updated_messages(board, thread):
+#     # Логика получения сообщений из базы данных
+#     messages = get_messages_from_db(board, thread)
+#     return messages
 
-# Функция для сохранения сообщения в базу данных
-async def save_message_to_db(message, board, thread):
-    # Логика сохранения сообщения в базе данных
-    pass
+# # Функция для сохранения сообщения в базу данных
+# async def save_message_to_db(message, board, thread):
+#     # Логика сохранения сообщения в базе данных
+#     pass
 
 @app.route('/')
 def show_frontpage():
