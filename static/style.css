@@ -18,13 +18,72 @@ p {
 
 
 textarea, input {
-	field-sizing: content;
-	/* border: 1px solid #aaa; */
-	background-color: #e6e6e638;
+	field-sizing: border-box;
+	border: 1px solid #aaa; 
+	background-color: #31313196;
 	padding: 4px;
 	color: #444;
-	margin: 0;
+	margin: 5px;
 	width: 97%;
+	border-radius: 15px;
+	text-align: center;
+	color: white;
+}
+.name_input {
+	background-color: #31313196;
+	border: 1px solid #aaa; 
+	color: white
+	border-radius: 15px;
+	text-align: center;
+}
+
+.Overboard_span {
+	width: 300px;
+	border-radius: 30px;
+	float: right;
+	background: #A5A5A5; 
+	padding: 10px;
+	margin: 5px;
+}
+
+.input_span {
+	width: 300px;
+	border-radius: 30px;
+	float: right;
+	padding: 10px;
+	margin: 5px;
+}
+
+
+
+.subject_input {
+	background-color: #31313196;
+	border: 1px solid #aaa; 
+	color: white
+	border-radius: 15px;
+	text-align: center;
+}
+
+.file_input {
+	background-color: #31313196;
+	border: 1px solid #aaa; 
+	color: white
+	border-radius: 15px;
+	text-align: center;
+}
+
+.button_input {
+	background-color: #31313196;
+	border: 1px solid #aaa; 
+	color: white
+	border-radius: 15px;
+	text-align: center;
+	width: 70px;
+	height: 30px;
+	display: flex;
+	justify-content: center;
+	align-items: center
+	
 }
 
 th {
@@ -43,13 +102,12 @@ blockquote {
 	margin: 0;
 }
 
-.post, .catalog {
+/* .post, .catalog {
 	background: #ffffff07;
 	border-radius: 2px;
-	display: table;
 	padding: 6px 8px 0 8px;
 	margin: 5px;
-}
+} */
 .catalog {
 	display: inline-block;
 }
@@ -74,7 +132,14 @@ blockquote {
 }
 
 .img_home {
-	transform: scale(1);
+	width: 400px;
+	height: 400px;
+	margin: 20px;
+}
+
+.img_home2 {
+	width: 400px;
+	height: 400px;
 	margin: 20px;
 }
 
@@ -82,20 +147,12 @@ blockquote {
 	width: 1000px;
 	margin: 50px auto;
 }
+
 #left {
 	width: 650px;
 	float: left;
 }
-#right {
-	width: 300px;
-	height:600px;
-	float: right;
-	background: #3e3e3e;
-	border-radius: 2px;
-	display: table;
-	padding: 10px;
-	margin: 5px;
-}
+
 #header {
 	width: 100%;
 	height: 20px;
@@ -105,4 +162,3 @@ blockquote {
 	padding-top: 4px;
 	word-spacing: 4px;
 }
-#comment {}

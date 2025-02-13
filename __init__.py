@@ -6,7 +6,7 @@ app.config.from_object('config')
 from flask import Flask, request
 @app.route("/")
 def index():
-    ip = request.remote_addr
+    ip = request.remote_addr()
     return f"Ваш IP-адрес: {ip}"
 
 if __name__ == "__main__":

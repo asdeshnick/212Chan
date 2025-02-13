@@ -26,7 +26,7 @@ def upload_file():
 
         # Pass to PIL to make a thumbnail
         file = Image.open(file)
-        file.thumbnail((200,200), Image.ANTIALIAS)
+        file.thumbnail((200,200), Image.Resampling.LANCZOS)
         file.save(join(THUMBS_FOLDER, fname))
     return fname
 
