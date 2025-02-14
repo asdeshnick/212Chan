@@ -140,116 +140,116 @@ def delete():
     return redirect('/' + board + '/' + thread)
 
 
-import requests
 
-def get_ip_location(ip: str) -> dict:
-    """
-    Получает информацию о геолокации IP-адреса.
+
+# def get_ip_location(ip: str) -> dict:
+#     """
+#     Получает информацию о геолокации IP-адреса.
     
-    :param ip: IP-адрес
-    :return: Словарь с данными о геолокации
-    """
-    try:
-        ipaddress.ip_address(ip)
-    except ValueError:
-        print(f"Неправильный IP-адрес: {ip}")
-        return None
+#     :param ip: IP-адрес
+#     :return: Словарь с данными о геолокации
+#     """
+#     try:
+#         ipaddress.ip_address(ip)
+#     except ValueError:
+#         print(f"Неправильный IP-адрес: {ip}")
+#         return None
 
-    # остальной код функции
+#     # остальной код функции
 
-    try:
-        url = f"http://ip-api.com/json/{ip}?lang=ru"
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        if data.get("status") == "fail":
-            raise ValueError(data.get("message"))
-        return data
-    except requests.exceptions.RequestException as e:
-        print(f"Ошибка запроса: {e}")
-        return None
-    except ValueError as e:
-        print(f"Неправильный IP-адрес: {e}")
-        return None
+#     try:
+#         url = f"http://ip-api.com/json/{ip}?lang=ru"
+#         response = requests.get(url)
+#         response.raise_for_status()
+#         data = response.json()
+#         if data.get("status") == "fail":
+#             raise ValueError(data.get("message"))
+#         return data
+#     except requests.exceptions.RequestException as e:
+#         print(f"Ошибка запроса: {e}")
+#         return None
+#     except ValueError as e:
+#         print(f"Неправильный IP-адрес: {e}")
+#         return None
 
-def handle_ip_request(ip: str) -> None:
-    """
-    Обрабатывает запрос на получение информации о геолокации IP-адреса.
+# def handle_ip_request(ip: str) -> None:
+#     """
+#     Обрабатывает запрос на получение информации о геолокации IP-адреса.
     
-    :param ip: IP-адрес
-    """
-    try:
-        location_data = get_ip_location(ip)
-        if location_data is None:
-            print("Не удалось получить информацию о геолокации")
-            return
-        print("Информация о геолокации:")
-        for key, value in location_data.items():
-            print(f"[{key.title()}]: {value}")
-    except Exception as e:
-        print(f"Ошибка: {e}")
+#     :param ip: IP-адрес
+#     """
+#     try:
+#         location_data = get_ip_location(ip)
+#         if location_data is None:
+#             print("Не удалось получить информацию о геолокации")
+#             return
+#         print("Информация о геолокации:")
+#         for key, value in location_data.items():
+#             print(f"[{key.title()}]: {value}")
+#     except Exception as e:
+#         print(f"Ошибка: {e}")
 
-def main1() -> None:
-    """
-    Основная функция.
-    """
-    with app.test_request_context():
-        ip = request.remote_addr
-        if ip is None:
-            print("Не удалось получить IP-адрес")
-            return
+# def main1() -> None:
+#     """
+#     Основная функция.
+#     """
+#     with app.test_request_context():
+#         ip = request.remote_addr
+#         if ip is None:
+#             print("Не удалось получить IP-адрес")
+#             return
 
-        handle_ip_request(ip)
-        # остальной код функции
-
-
-    with app.test_request_context():
-        ip = get_remote_addr()
-        if ip is None:
-            print("Не удалось получить IP-адрес")
-            return
-
-        handle_ip_request(ip)
-        # остальной код функции
-    with app.test_request_context():
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        if ip is None:
-            print("Не удалось получить IP-адрес")
-            return
-
-        location_data = get_ip_location(ip)
-        if location_data is None:
-            print("Не удалось получить информацию о геолокации")
-            return
-
-        handle_ip_request(ip)
+#         handle_ip_request(ip)
         
 
-    with app.test_request_context():
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        if ip is None:
-            print("Не удалось получить IP-адрес")
-            return
-        handle_ip_request(ip)
-        
-    with app.test_request_context():
-        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        handle_ip_request(ip)
 
-        # Записываем вывод в файл output.txt
-        with open('output.txt', 'w') as f:
-            f.write(f"IP-адрес: {ip}\n")
-            location_data = get_ip_location(ip)
-            if location_data is not None:
-                f.write("Информация о геолокации:\n")
-                for key, value in location_data.items():
-                    f.write(f"[{key.title()}]: {value}\n")
-            else:
-                f.write("Не удалось получить информацию о геолокации\n")
+#     with app.test_request_context():
+#         ip = get_remote_addr()
+#         if ip is None:
+#             print("Не удалось получить IP-адрес")
+#             return
+
+#         handle_ip_request(ip)
+
+#     with app.test_request_context():
+#         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+#         if ip is None:
+#             print("Не удалось получить IP-адрес")
+#             return
+
+#         location_data = get_ip_location(ip)
+#         if location_data is None:
+#             print("Не удалось получить информацию о геолокации")
+#             return
+
+#         handle_ip_request(ip)
+        
+
+#     with app.test_request_context():
+#         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+#         if ip is None:
+#             print("Не удалось получить IP-адрес")
+#             return
+#         handle_ip_request(ip)
+        
+#     with app.test_request_context():
+#         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+#         handle_ip_request(ip)
+
+#         # Записываем вывод в файл output.txt
+#         with open('output.txt', 'w') as f:
+#             f.write(f"IP-адрес: {ip}\n")
+#             location_data = get_ip_location(ip)
+#             if location_data is not None:
+#                 f.write("Информация о геолокации:\n")
+#                 for key, value in location_data.items():
+#                     f.write(f"[{key.title()}]: {value}\n")
+#             else:
+#                 f.write("Не удалось получить информацию о геолокации\n")
 
 
 if __name__ == '__main__':
-    main1()
+    # main1()
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
     print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])
     app.run(debug=True)

@@ -4,7 +4,7 @@
 import os
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.abspath('instance/posts.db')
-DEBUG = False
+DEBUG = True
 SECRET_KEY = 'ya-hochu-piva'
 
 
