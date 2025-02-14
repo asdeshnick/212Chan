@@ -6,7 +6,7 @@
             <div class="byline">
                 <span>{{ entry.subject }}</span>
                 <span>{{ entry.name }}</span>
-                <!-- <span>{{ entry.date.strftime("%Y-%m-%d %H:%M:%S") }}</span> -->
+                <span>{{ entry.date("%Y-%m-%d %H:%M:%S") }}</span>
             </div>
             <div class="post_body" id="{{ entry.id }}">
                 {% if entry.fname and not entry.deleted_image %}

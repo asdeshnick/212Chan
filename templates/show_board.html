@@ -12,7 +12,7 @@
                     <div class="byline">
                         <span>{{ entry.subject }}</span>
                         <span>{{ entry.name }}</span>
-                        <!-- <span>{{ entry.date.strftime("%Y-%m-%d %H:%M:%S") }}</span> -->
+                        <span>{{ entry.date("%Y-%m-%d %H:%M:%S") }}</span>
                         {% if not entry.op_id %}
                             <span><a href='{{ entry.id }}'>#{{ entry.id }}</a></span>
                         {% else %}
