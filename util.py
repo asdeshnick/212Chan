@@ -8,109 +8,153 @@ from database import db
 from datetime import datetime
 import logging
 from config import *
+from sqlalchemy.exc import SQLAlchemyError
 
 def board_inexistent(name):
-    
+    """Проверяет, существует ли доска."""
     if name not in BOARDS:
-        flash('board ' + name + ' does not exist')
+        flash(f'Board {name} does not exist')
         return True
+    return False
 
 def upload_file():
-    file = request.files['file']
-    fname = ''
-    if file and allowed_file(file.filename):
-        # Save file as <timestamp>.<extension>
-        ext = file.filename.rsplit('.', 1)[1]
-        fname = str(int(time() * 1000)) + '.' + ext
-        file.save(join(UPLOAD_FOLDER, fname))
+    """Загружает файл и создает миниатюру."""
+    file = request.files.get('file')
+    if not file or not allowed_file(file.filename):
+        return ''
+    
+    ext = file.filename.rsplit('.', 1)[1]
+    fname = f"{int(time() * 1000)}.{ext}"
+    file_path = join(UPLOAD_FOLDER, fname)
+    file.save(file_path)
 
-        # Pass to PIL to make a thumbnail
-        file = Image.open(file)
-        file.thumbnail((200,200), Image.Resampling.LANCZOS)
-        file.save(join(THUMBS_FOLDER, fname))
+    # Создание миниатюры
+    with Image.open(file_path) as img:
+        img.thumbnail((200, 200), Image.Resampling.LANCZOS)
+        img.save(join(THUMBS_FOLDER, fname))
+    
     return fname
 
 def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    """Проверяет, разрешено ли расширение файла."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def no_image():
-    if not request.files['file']:
+    """Проверяет, отсутствует ли изображение."""
+    if not request.files.get('file'):
         flash('Must include an image')
         return True
     return False
 
 def no_content_or_image():
-    if not request.files['file'] and request.form['post_content'] == '':
+    """Проверяет, отсутствует ли контент или изображение."""
+    if not request.files.get('file') and not request.form.get('post_content'):
         flash('Must include a comment or image')
         return True
     return False
 
 def get_replies(thread):
-    return db.session.query(Posts).filter_by(op_id = thread, deleted = 0).all()
+    """Возвращает все ответы на тред."""
+    return Posts.query.filter_by(op_id=thread, deleted=False).all()
 
 def get_last_replies(thread):
-    return db.session.query(Posts).filter_by(op_id = thread, deleted = 0).order_by(db.text('id desc')).limit(5)
+    """Возвращает последние 5 ответов на тред."""
+    return Posts.query.filter_by(op_id=thread, deleted=False).order_by(Posts.id.desc()).limit(5).all()
 
 def get_OPs(board):
-    return db.session.query(Posts).filter_by(op_id = '0', board = board, deleted = 0).order_by(db.text('last_bump desc')).limit(10)
+    """Возвращает последние 10 OP-постов на доске."""
+    return Posts.query.filter_by(op_id='0', board=board, deleted=False).order_by(Posts.last_bump.desc()).limit(10).all()
 
 def get_OPs_catalog(board):
-    return db.session.query(Posts).filter_by(op_id = '0', board = board, deleted = 0).order_by(db.text('last_bump desc')).limit(100)
+    """Возвращает последние 100 OP-постов на доске для каталога."""
+    return Posts.query.filter_by(op_id='0', board=board, deleted=False).order_by(Posts.last_bump.desc()).limit(100).all()
 
 def get_OPs_all():
-    return db.session.query(Posts).filter_by(op_id = '0', deleted = 0).order_by(db.text('last_bump desc')).limit(10)
+    """Возвращает последние 10 OP-постов со всех досок."""
+    return Posts.query.filter_by(op_id='0', deleted=False).order_by(Posts.last_bump.desc()).limit(10).all()
 
 def get_thread_OP(id):
-    return db.session.query(Posts).filter_by(id = id).all()
+    """Возвращает OP-пост треда по ID."""
+    return Posts.query.filter_by(id=id).first()
 
 def get_sidebar(board):
-    return db.session.query(Boards).filter_by(name=board).first()
+    """Возвращает информацию о доске для боковой панели."""
+    return Boards.query.filter_by(name=board).first()
 
-def new_post(board, op_id = 1):
-    if 'name' not in request.form or 'post_content' not in request.form:
+def new_post(board, op_id='0'):
+    """Создает новый пост."""
+    if not all(key in request.form for key in ['name', 'post_content']):
         flash('Must include name and post content')
         return None
-    newPost = Posts(board   = board,
-                    name    = request.form['name'],
-                    text    = request.form['post_content'],
-                    date    = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    fname   = upload_file(),
-                    op_id   = op_id, # Threads are normal posts with op_id set to 0
-                    deleted = False)
-    db.session.add(newPost)
-    db.session.commit()
-    return newPost
+    
+    fname = upload_file()
+    new_post = Posts(
+        board=board,
+        name=request.form['name'],
+        text=request.form['post_content'],
+        # date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        fname=fname,
+        op_id=op_id,
+        deleted=False
+    )
+    
+    try:
+        db.session.add(new_post)
+        db.session.commit()
+        return new_post
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Error creating new post: {e}")
+        flash('An error occurred while creating the post')
+        return None
 
 def bump_thread(op_id):
+    """Обновляет время последнего бампа треда."""
     try:
-        OP = db.session.query(Posts).filter_by(id = op_id).first()
-        if OP is None:
+        OP = Posts.query.filter_by(id=op_id).first()
+        if not OP:
             flash('Post not found')
             return None
+        
         OP.last_bump = datetime.now()
         db.session.commit()
         return True
-    except Exception as e:
-        print(f"Ошибка: {e}")
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Error bumping thread: {e}")
+        flash('An error occurred while bumping the thread')
         return None
+
 def reply_count(op_id):
-    replies = db.session.query(Posts).filter_by(op_id = op_id).all()
-    if replies is None:
-        return 0
-    return len(replies)
+    """Возвращает количество ответов на тред."""
+    return Posts.query.filter_by(op_id=op_id, deleted=False).count()
 
 def delete_post(id):
-    post = db.session.query(Posts).filter_by(id=id).first()
-    if post is None:
+    """Помечает пост как удаленный."""
+    post = Posts.query.filter_by(id=id).first()
+    if not post:
         flash('Post not found')
         return None
+    
     post.deleted = True
-    db.session.add(post)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Error deleting post: {e}")
+        flash('An error occurred while deleting the post')
 
 def delete_image(id):
-    post = db.session.query(Posts).filter_by(id=id).one()
+    """Помечает изображение поста как удаленное."""
+    post = Posts.query.filter_by(id=id).first()
+    if not post:
+        flash('Post not found')
+        return None
+    
     post.deleted_image = True
-    db.session.add(post)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Error deleting image: {e}")
+        flash('An error occurred while deleting the image')

@@ -1,25 +1,22 @@
 {% extends "layout.html" %}
 {% block body %}
-<div id=wrap>
-
-{% for entry in entries %}
-<div class=catalog>
-	<div class='byline'>
-		<span>{{ entry.subject }}</span>
-		<span>{{ entry.name }}</span>
-		<span>{{ entry.date }}</span>
-	</div>
-	<div class='post_body' id='{{ entry.id }}'>
-		{% if entry.fname %}
-		<a href='{{ entry.id }}'>
-		<img class=thumb src=/static/thumbs/{{ entry.fname }}>
-		</a>
-		{% endif %}
-		{{ entry.text|markdown }}
-	</div>
-</div>
-{% endfor %}
-
-
+<div id="wrap">
+    {% for entry in entries %}
+        <div class="catalog">
+            <div class="byline">
+                <span>{{ entry.subject }}</span>
+                <span>{{ entry.name }}</span>
+                <!-- <span>{{ entry.date.strftime("%Y-%m-%d %H:%M:%S") }}</span> -->
+            </div>
+            <div class="post_body" id="{{ entry.id }}">
+                {% if entry.fname and not entry.deleted_image %}
+                    <a href="{{ entry.id }}">
+                        <img class="thumb" src="/static/thumbs/{{ entry.fname }}">
+                    </a>
+                {% endif %}
+                {{ entry.text|markdown }}
+            </div>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}
