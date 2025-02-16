@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Создать новую доску</h2>
+    <form method="POST">
+        <label for="name">Имя доски:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="long_name">Длинное имя:</label>
+        <input type="text" id="long_name" name="long_name" required>
+        <label for="description">Описание:</label>
+        <textarea id="description" name="description" required></textarea>
+        <label for="hidden">Скрытая доска:</label>
+        <input type="checkbox" id="hidden" name="hidden">
+        <button type="submit">Создать</button>
+    </form>
+{% endblock %}

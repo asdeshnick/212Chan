@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Управление досками</h2>
+    <a href="{{ url_for('admin_create_board') }}">Создать новую доску</a>
+    <ul>
+        {% for board in boards %}
+            <li>
+                <strong>{{ board.name }}</strong> - {{ board.long_name }}
+                <p>{{ board.description }}</p>
+                <a href="{{ url_for('admin_edit_board', name=board.name) }}">Редактировать</a>
+                <form action="{{ url_for('admin_delete_board', name=board.name) }}" method="POST">
+                    <button type="submit">Удалить</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

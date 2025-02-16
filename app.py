@@ -139,6 +139,48 @@ def delete():
     thread = request.args.get('thread')
     return redirect('/' + board + '/' + thread)
 
+@app.route('/admin/boards')
+def admin_boards():
+    boards = db.session.query(Boards).all()
+    return render_template('admin_boards.html', boards=boards)
+
+@app.route('/admin/boards/create', methods=['GET', 'POST'])
+def admin_create_board():
+    if request.method == 'POST':
+        return create_board()
+    return render_template('admin_create_board.html')
+
+@app.route('/admin/boards/edit/<name>', methods=['GET', 'POST'])
+def admin_edit_board(name):
+    if request.method == 'POST':
+        return edit_board(name)
+    board = db.session.query(Boards).filter_by(name=name).first()
+    return render_template('admin_edit_board.html', board=board)
+
+@app.route('/admin/boards/delete/<name>', methods=['POST'])
+def admin_delete_board(name):
+    return delete_board(name)
+
+@app.route('/admin/posts')
+def admin_posts():
+    posts = db.session.query(Posts).order_by(Posts.date.desc()).all()
+    return render_template('admin_posts.html', posts=posts)
+
+@app.route('/admin/posts/delete/<int:id>', methods=['POST'])
+def admin_delete_post(id):
+    return delete_post(id)
+
+@app.route('/admin/posts/restore/<int:id>', methods=['POST'])
+def admin_restore_post(id):
+    return restore_post(id)
+
+@app.route('/admin/posts/permanently_delete/<int:id>', methods=['POST'])
+def admin_permanently_delete_post(id):
+    return permanently_delete_post(id)
+
+@app.route('/admin/posts/delete_image/<int:id>', methods=['POST'])
+def admin_delete_image(id):
+    return delete_image_from_post(id)
 
 
 
