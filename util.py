@@ -9,6 +9,10 @@ from datetime import datetime
 import logging
 from config import *
 
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected")
+
 def board_inexistent(name):
     
     if name not in BOARDS:
@@ -29,6 +33,44 @@ def upload_file():
         file.thumbnail((200,200), Image.Resampling.LANCZOS)
         file.save(join(THUMBS_FOLDER, fname))
     return fname
+
+
+
+
+
+@socketio.on('new_message')
+async def new_post(board, op_id = 1):
+    if 'name' not in request.form or 'post_content' not in request.form:
+        flash('Must include name and post content')
+        return None
+    newPost = Posts(board   = board,
+                    name    = request.form['name'],
+                    text    = request.form['post_content'],
+                    date    = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    fname   = upload_file(),
+                    op_id   = op_id, # Threads are normal posts with op_id set to 0
+                    deleted = False)
+    db.session.add(newPost)
+    db.session.commit()
+    return newPost
+    
+    await new_post(board, op_id = 1)
+    
+    # Отправка обновленного списка сообщений всем подключенным клиентам
+    updated_messages = await fetch_updated_messages(board, thread)
+    socketio.emit('update_messages', {'messages': updated_messages}, broadcast=True)
+
+# Функция для получения обновленных сообщений
+async def fetch_updated_messages(board, thread):
+    # Логика получения сообщений из базы данных
+    messages = get_messages_from_db(board, thread)
+    return messages
+
+# Функция для сохранения сообщения в базу данных
+async def save_message_to_db(message, board, thread):
+    # Логика сохранения сообщения в базе данных
+    pass
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -67,20 +109,6 @@ def get_thread_OP(id):
 def get_sidebar(board):
     return db.session.query(Boards).filter_by(name=board).first()
 
-def new_post(board, op_id = 1):
-    if 'name' not in request.form or 'post_content' not in request.form:
-        flash('Must include name and post content')
-        return None
-    newPost = Posts(board   = board,
-                    name    = request.form['name'],
-                    text    = request.form['post_content'],
-                    date    = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    fname   = upload_file(),
-                    op_id   = op_id, # Threads are normal posts with op_id set to 0
-                    deleted = False)
-    db.session.add(newPost)
-    db.session.commit()
-    return newPost
 
 def bump_thread(op_id):
     try:
