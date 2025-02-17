@@ -114,3 +114,94 @@ def delete_image(id):
     post.deleted_image = True
     db.session.add(post)
     db.session.commit()
+
+
+def create_board():
+    if 'name' not in request.form or 'long_name' not in request.form or 'description' not in request.form:
+        flash('Must include name, long name, and description')
+        return redirect(url_for('admin_boards'))
+
+    name = request.form['name']
+    long_name = request.form['long_name']
+    description = request.form['description']
+    hidden = 'hidden' in request.form  # Проверяем, отмечен ли чекбокс "hidden"
+
+    new_board = Boards(name=name, long_name=long_name, description=description, hidden=hidden)
+    db.session.add(new_board)
+    db.session.commit()
+    flash('Board created successfully')
+    return redirect(url_for('admin_boards'))
+
+def edit_board(name):
+    board = db.session.query(Boards).filter_by(name=name).first()
+    if not board:
+        flash('Board not found')
+        return redirect(url_for('admin_boards'))
+
+    if 'long_name' in request.form:
+        board.long_name = request.form['long_name']
+    if 'description' in request.form:
+        board.description = request.form['description']
+    if 'hidden' in request.form:
+        board.hidden = True
+    else:
+        board.hidden = False
+
+    db.session.commit()
+    flash('Board updated successfully')
+    return redirect(url_for('admin_boards'))
+
+def delete_board(name):
+    board = db.session.query(Boards).filter_by(name=name).first()
+    if not board:
+        flash('Board not found')
+        return redirect(url_for('admin_boards'))
+
+    db.session.delete(board)
+    db.session.commit()
+    flash('Board deleted successfully')
+    return redirect(url_for('admin_boards'))
+
+def delete_post(id):
+    post = db.session.query(Posts).filter_by(id=id).first()
+    if not post:
+        flash('Post not found')
+        return redirect(url_for('admin_posts'))
+
+    post.deleted = True
+    db.session.commit()
+    flash('Post deleted successfully')
+    return redirect(url_for('admin_posts'))
+
+def restore_post(id):
+    post = db.session.query(Posts).filter_by(id=id).first()
+    if not post:
+        flash('Post not found')
+        return redirect(url_for('admin_posts'))
+
+    post.deleted = False
+    db.session.commit()
+    flash('Post restored successfully')
+    return redirect(url_for('admin_posts'))
+
+def permanently_delete_post(id):
+    post = db.session.query(Posts).filter_by(id=id).first()
+    if not post:
+        flash('Post not found')
+        return redirect(url_for('admin_posts'))
+
+    db.session.delete(post)
+    db.session.commit()
+    flash('Post permanently deleted')
+    return redirect(url_for('admin_posts'))
+
+def delete_image_from_post(id):
+    post = db.session.query(Posts).filter_by(id=id).first()
+    if not post:
+        flash('Post not found')
+        return redirect(url_for('admin_posts'))
+
+    post.fname = None  # Удаляем имя файла изображения
+    db.session.commit()
+    flash('Image deleted from post')
+    return redirect(url_for('admin_posts'))
