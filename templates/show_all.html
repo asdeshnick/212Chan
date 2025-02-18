@@ -20,7 +20,7 @@
 		{% if not entry.op_id %}
 		<span><a href='/{{ entry.board }}/{{ entry.id }}'>#{{ entry.id }}</a></span>
 		{% else %}
-			<a href='#{{ entry.id }}' onclick="cite({{ entry.id }})">#{{ entry.id }}</a>
+			<p>#{{ entry.id }}</p>
 		{% endif %}
 	</div>
 	<div class='post_body' id='{{ entry.id }}'>

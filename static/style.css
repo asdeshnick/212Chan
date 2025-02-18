@@ -8,7 +8,7 @@ body {
 	color: #be1b1b;
 	padding: 10px;
 }
-a {
+p, a {
 	color: #ffffff;
 	text-decoration: none;
 }

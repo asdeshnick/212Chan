@@ -84,7 +84,10 @@ def new_post(board, op_id = 1):
 
 def bump_thread(op_id):
     try:
-        OP = db.session.query(Posts).filter_by(id = op_id).first()
+        print(id)
+        print(op_id)
+        print(id == op_id)
+        OP = db.session.query(Posts).filter_by(id=op_id).first()
         if OP is None:
             flash('Post not found')
             return None
@@ -92,28 +95,29 @@ def bump_thread(op_id):
         db.session.commit()
         return True
     except Exception as e:
-        print(f"Ошибка: {e}")
+        logging.error(f"Ошибка: {e}")
         return None
+
 def reply_count(op_id):
     replies = db.session.query(Posts).filter_by(op_id = op_id).all()
     if replies is None:
         return 0
     return len(replies)
 
-def delete_post(id):
-    post = db.session.query(Posts).filter_by(id=id).first()
-    if post is None:
-        flash('Post not found')
-        return None
-    post.deleted = True
-    db.session.add(post)
-    db.session.commit()
+# def delete_post(id):
+#     post = db.session.query(Posts).filter_by(id=id).first()
+#     if post is None:
+#         flash('Post not found')
+#         return None
+#     post.deleted = True
+#     db.session.add(post)
+#     db.session.commit()
 
-def delete_image(id):
-    post = db.session.query(Posts).filter_by(id=id).one()
-    post.deleted_image = True
-    db.session.add(post)
-    db.session.commit()
+# def delete_image(id):
+#     post = db.session.query(Posts).filter_by(id=id).one()
+#     post.deleted_image = True
+#     db.session.add(post)
+#     db.session.commit()
 
 
 def create_board():

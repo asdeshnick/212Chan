@@ -15,9 +15,9 @@
 		<span>{{ entry.name }}</span>
 		<span>{{ entry.date }}</span>
 		{% if not entry.op_id %}
-			<span><a href='{{ entry.id }}'>#{{ entry.id }}</a></span>
+			<span><p>#{{ entry.id }}</p></span>
 		{% else %}
-			<a href='#{{ entry.id }}' onclick="cite({{ entry.id }})">#{{ entry.id }}</a>
+			<p>#{{ entry.id }}</p>
 		{% endif %}
 	</div>
 	<div class='post_body' id='{{ entry.id }}'>
