@@ -42,7 +42,8 @@ def no_image():
 
 def no_content_or_image():
     if not request.files['file'] and request.form['post_content'] == '':
-        flash('Must include a comment or image')
+        flash('Ты долбаеб?')
+        flash('Зачем отправлять пустое сообщение?')
         return True
     return False
 
@@ -90,6 +91,7 @@ def bump_thread(op_id):
         OP = db.session.query(Posts).filter_by(id=op_id).first()
         if OP is None:
             flash('Post not found')
+            flash('Заебало)')
             return None
         OP.last_bump = datetime.now()
         db.session.commit()
