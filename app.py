@@ -6,10 +6,10 @@ from flask_misaka import Misaka
 from util import *
 from database import db
 import config
-import asyncio
-import requests
-# import using_IP.databsaeforloc as databsaeforloc
-import ipaddress
+# import asyncio
+# import requests
+# import ipaddress
+import sqlite3
 
 
 
@@ -25,43 +25,23 @@ Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
-# @socketio.on('connect')
-# def handle_connect():
-#     print("Client connected")
-
-# @socketio.on('new_message')
-# async def handle_new_message(data):
-#     message = data['message']
-#     board = data['board']
-#     thread = data['thread']
-
-      
-#     # Здесь должна быть логика сохранения нового сообщения в базу данных
-#     await save_message_to_db(message, board, thread)
-    
-#     # Отправка обновленного списка сообщений всем подключенным клиентам
-#     updated_messages = await fetch_updated_messages(board, thread)
-#     socketio.emit('update_messages', {'messages': updated_messages}, broadcast=True)
-
-# # Функция для получения обновленных сообщений
-# async def fetch_updated_messages(board, thread):
-#     # Логика получения сообщений из базы данных
-#     messages = get_messages_from_db(board, thread)
-#     return messages
-
-# # Функция для сохранения сообщения в базу данных
-# async def save_message_to_db(message, board, thread):
-#     # Логика сохранения сообщения в базе данных
-#     pass
 
 @app.route('/')
 def show_frontpage():
-    return render_template('home.html')
 
 
-# @app.route('/all/')
-# def show_frontpage():
-#     return render_template('home.html')
+    return render_template('home.html'), "Hello World!"
+    
+
+
+@app.route('/visitors')
+def show_visitors():
+    conn = sqlite3.connect('visitors.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM visitors')
+    visitors = c.fetchall()
+    conn.close()
+    return render_template('index.html', visitors=visitors)
 
 @app.route('/all/')
 def show_all():
@@ -71,6 +51,17 @@ def show_all():
         replies = get_last_replies(OP.id)
         entry_list.append(OP)
         entry_list += replies[::-1]
+
+    
+    # Получение IP-адреса пользователя
+    ip_address = request.remote_addr
+    print(ip_address)
+    
+    # Получение User-Agent пользователя
+    user_agent = request.headers.get('User-Agent')
+    print(user_agent)
+    # Сохранение данных в базу данных
+    save_visitor(ip_address, user_agent)
 
     return render_template('show_all.html', entries=entry_list, board='all')
 
@@ -290,8 +281,37 @@ def admin_delete_image(id):
 #                 f.write("Не удалось получить информацию о геолокации\n")
 
 
+
+
+
+# Функция для создания базы данных и таблицы, если она еще не существует
+def create_db():
+    conn = sqlite3.connect('visitors.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS visitors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip_address TEXT,
+            user_agent TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Функция для сохранения данных о посетителе в базу данных
+def save_visitor(ip_address, user_agent):
+    conn = sqlite3.connect('visitors.db')
+    c = conn.cursor()
+    c.execute('''INSERT INTO visitors (ip_address, user_agent) VALUES (?, ?)''', (ip_address, user_agent))
+    conn.commit()
+    conn.close()
+
+
+
 if __name__ == '__main__':
     # main1()
+    create_db()
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
     print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])
     app.run(debug=True)

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посетители</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Посетители</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>IP-адрес</th>
+            <th>User-Agent</th>
+            <th>Время посещения</th>
+        </tr>
+        {% for visitor in visitors %}
+        <tr>
+            <td>{{ visitor.id }}</td>
+            <td>{{ visitor.ip_address }}</td>
+            <td>{{ visitor.user_agent }}</td>
+            <td>{{ visitor.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

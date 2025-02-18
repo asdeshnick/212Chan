@@ -54,7 +54,20 @@ textarea, input {
 	margin: 5px;
 }
 
+.redact_posts {
+	width: 1080px;
+	float: center;
+	background: #A5A5A5; 
+	padding: 10px;
+	margin: 5px;
+	
+}
 
+.main_admin {
+	background: #000000;
+	color: #be1b1b;
+	padding: 10px;
+}
 
 .subject_input {
 	background-color: #31313196;
