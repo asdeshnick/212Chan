@@ -8,10 +8,11 @@ from database import db
 from datetime import datetime
 import logging
 from config import *
+import socketio
 
-@socketio.on('connect')
-def handle_connect():
-    print("Client connected")
+# @socketio.on('connect')
+# def handle_connect():
+#     print("Client connected")
 
 def board_inexistent(name):
     
