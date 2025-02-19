@@ -18,9 +18,9 @@
 		<span>{{ entry.name }}</span>
 		<span>{{ entry.date }}</span>
 		{% if not entry.op_id %}
-		<span><a href='/{{ entry.board }}/{{ entry.id }}'>#{{ entry.id }}</a></span>
+			<span><a href='/{{ entry.board }}/{{ entry.id }}'>#{{ entry.id }}</a></span>
 		{% else %}
-			<p>#{{ entry.id }}</p>
+			<span><a href='/{{ entry.board }}/{{ entry.id }}'>#{{ entry.id }}</a></span>
 		{% endif %}
 	</div>
 	<div class='post_body' id='{{ entry.id }}'>

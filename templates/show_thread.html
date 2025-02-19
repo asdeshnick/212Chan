@@ -14,9 +14,9 @@
 		<span>{{ entry.subject }}</span>
 		<span>{{ entry.name }}</span>
 		<span>{{ entry.date }}</span>
-		<p>#{{ entry.id }}</p>
-		<!-- <a href='#{{ entry.id }}' onclick="cite({{ entry.id }})">#{{ entry.id }}</a> -->
-		<!-- <a href="{{ url_for('delete') }}?id={{entry.id}}&board={{board}}&thread={{entry.op_id}}">delete</a> -->
+		<!-- <p>#{{ entry.id }}</p> -->
+		<!-- Добавляем вызов функции -->
+		<a href='#{{ entry.id }}' onclick="preventInput(event); cite({{ entry.id }}); return false;">#{{ entry.id }}</a> 
 	</div>
 	<div class='post_body' id='{{ entry.id }}'>
 		{% if entry.fname %}
