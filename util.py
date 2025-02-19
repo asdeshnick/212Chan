@@ -88,7 +88,7 @@ def bump_thread(op_id):
         print(id)
         print(op_id)
         print(id == op_id)
-        OP = db.session.query(Posts).filter_by(id=op_id).first()
+        OP = db.session.query(Posts).filter_by(op_id == id).first()
         if OP is None:
             flash('Post not found')
             flash('Заебало)')
