@@ -10,7 +10,7 @@ class Boards(db.Model):
 class Posts(db.Model):
     __tablename__ = 'posts'
     id        = db.Column(db.Integer, primary_key = True)
-    op_id     = db.Column(db.Integer)
+    op_id     = db.Column(db.Integer) #primary_key = True)
     board     = db.Column(db.String)
     name      = db.Column(db.String)
     subject   = db.Column(db.String)

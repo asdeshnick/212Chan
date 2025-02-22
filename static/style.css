@@ -1,12 +1,85 @@
-body {
-	color: #ffffff;
-	background: black;
-	margin: 0;
+:root {
+    --container-width: min(100% - 30px, 1200px);
+    --primary-color: #be1b1b;
+    --text-color: #ffffff;
+    --bg-color: #000000;
+    --input-bg: #31313196;
 }
+
+/* Базовый сброс и бокс-сайзинг */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    color: var(--text-color);
+    background: var(--bg-color);
+    margin: 0;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* Контейнер для центрирования контента */
+.container {
+    width: var(--container-width);
+    margin-inline: auto;
+    padding: 15px 0;
+}
+
 .header {
-	background: #000000;
-	color: #be1b1b;
-	padding: 10px;
+    background: var(--bg-color);
+    color: var(--primary-color);
+    padding: 15px;
+    text-align: center;
+}
+
+/* Адаптивные изображения */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Общие стили для форм */
+textarea, 
+input,
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #aaa;
+    border-radius: 15px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+button {
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    width: auto;
+    padding: 8px 20px;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+/* Сетка для адаптивного расположения */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+/* Сайдбар элементы */
+.Overboard_span,
+.input_span {
+    background: #A5A5A5;
+    padding: 15px;
+    border-radius: 30px
 }
 p, a {
 	color: #ffffff;
@@ -16,25 +89,12 @@ p {
 	margin: 10px 0;
 }
 
-
-textarea, input {
-	field-sizing: border-box;
-	border: 1px solid #aaa; 
-	background-color: #31313196;
-	padding: 4px;
-	color: #444;
-	margin: 5px;
-	width: 97%;
-	border-radius: 15px;
-	text-align: center;
-	color: white;
-}
 .name_input {
 	background-color: #31313196;
 	border: 1px solid #aaa; 
 	color: white
-	border-radius: 15px;
-	text-align: center;
+	/* border-radius: 15px;
+	text-align: center; */
 }
 
 .Overboard_span {
@@ -73,29 +133,29 @@ textarea, input {
 	background-color: #31313196;
 	border: 1px solid #aaa; 
 	color: white
-	border-radius: 15px;
-	text-align: center;
+	/* border-radius: 15px;
+	text-align: center; */
 }
 
 .file_input {
 	background-color: #31313196;
 	border: 1px solid #aaa; 
 	color: white
-	border-radius: 15px;
-	text-align: center;
+	/* border-radius: 15px;
+	text-align: center; */
 }
 
 .button_input {
 	background-color: #31313196;
 	border: 1px solid #aaa; 
 	color: white
-	border-radius: 15px;
+	/* border-radius: 15px;
 	text-align: center;
 	width: 70px;
 	height: 30px;
 	display: flex;
 	justify-content: center;
-	align-items: center
+	align-items: center */
 	
 }
 
