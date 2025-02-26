@@ -142,11 +142,11 @@ def admin_login():
         
         if is_valid_admin(username, password):
             session['logged_in'] = True
-            return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('admin_boards'))
         else:
             error = 'Invalid credentials. Please try again.'
     
-    return render_template('login.html', error=error)
+    return render_template('login-admin.html', error=error)
 
 @app.route('/admin/dashboard')
 def admin_dashboard():
@@ -158,6 +158,7 @@ def admin_dashboard():
 def admin_boards():
     boards = db.session.query(Boards).all()
     return render_template('admin_boards.html', boards=boards)
+
 
 @app.route('/admin/boards/create', methods=['GET', 'POST'])
 def admin_create_board():
