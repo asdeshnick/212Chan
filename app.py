@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, url_for, session
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -16,6 +16,7 @@ import sqlite3
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
+# app.secret_key = 'your_secret_key'  # Секретный ключ для сессий
 # socketio = SocketIO(app, async_mode="threading")
 
 with app.app_context():
@@ -126,6 +127,32 @@ def delete():
     board = request.args.get('board')
     thread = request.args.get('thread')
     return redirect('/' + board + '/' + thread)
+
+
+def is_valid_admin(username, password):
+    # Здесь должна быть реальная проверка логина и пароля
+    return username == 'admin' and password == 'admin123'
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    error = None
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        if is_valid_admin(username, password):
+            session['logged_in'] = True
+            return redirect(url_for('admin_dashboard'))
+        else:
+            error = 'Invalid credentials. Please try again.'
+    
+    return render_template('login.html', error=error)
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('admin_login'))
+    return "Welcome to the Admin Dashboard!"
 
 @app.route('/admin/boards')
 def admin_boards():
