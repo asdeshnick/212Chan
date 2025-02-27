@@ -1,23 +1,28 @@
-from flask import Flask, request, redirect, render_template, url_for, session
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, request, redirect, render_template, url_for, session, flash
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from flask_misaka import Misaka
-from util import *
+from flask_wtf import FlaskForm
+from datetime import datetime
 from database import db
-import config
-# import asyncio
-# import requests
-# import ipaddress
+from util import *
 import sqlite3
+import config
+
 
 
 
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
-# app.secret_key = 'your_secret_key'  # Секретный ключ для сессий
 # socketio = SocketIO(app, async_mode="threading")
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 with app.app_context():
     db.create_all()
@@ -26,7 +31,43 @@ Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
+# Модель пользователя
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
 
+# Загрузчик пользователя
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+# Форма для входа
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
+# Маршрут для входа
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        # Здесь должна быть логика проверки пользователя
+        if form.username.data == 'admin' and form.password.data == 'password':
+            user = User(1)  # Пример пользователя
+            login_user(user)
+            flash('Вы успешно вошли!', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Неверное имя пользователя или пароль', 'error')
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Вы успешно вышли!', 'success')
+    return redirect(url_for('login'))
 @app.route('/')
 def show_frontpage():
 
