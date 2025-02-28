@@ -1,5 +1,6 @@
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask import Flask, request, redirect, render_template, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 from flask_socketio import SocketIO, emit
@@ -7,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_misaka import Misaka
 from flask_wtf import FlaskForm
 from flask_wtf import FlaskForm
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from database import db
 from util import *
@@ -15,12 +15,10 @@ import sqlite3
 import config
 
 
-
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
 # socketio = SocketIO(app, async_mode="threading")
-
 
 with app.app_context():
     db.create_all()
@@ -28,7 +26,6 @@ with app.app_context():
 Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
-
 
 # Настройка Flask-Login
 login_manager = LoginManager()
@@ -96,16 +93,13 @@ def show_all():
         replies = get_last_replies(OP.id)
         entry_list.append(OP)
         entry_list += replies[::-1]
-
     
     # Получение IP-адреса пользователя
     ip_address = request.remote_addr
     print(ip_address)
-    
     # Получение User-Agent пользователя
     user_agent = request.headers.get('User-Agent')
     print(user_agent)
-    # Сохранение данных в базу данных
     save_visitor(ip_address, user_agent)
 
     return render_template('show_all.html', entries=entry_list, board='all')
