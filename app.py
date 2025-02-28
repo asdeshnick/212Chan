@@ -6,6 +6,8 @@ from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
 from flask_misaka import Misaka
 from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from database import db
 from util import *
@@ -14,15 +16,11 @@ import config
 
 
 
-
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
 # socketio = SocketIO(app, async_mode="threading")
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
 
 with app.app_context():
     db.create_all()
@@ -31,15 +29,31 @@ Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
+
+# Настройка Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
 # Модель пользователя
 class User(UserMixin):
-    def __init__(self, id):
+    def __init__(self, id, username, password_hash):
         self.id = id
+        self.username = username
+        self.password_hash = password_hash
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+# Пример базы данных пользователей
+users = {
+    1: User(1, 'admin', generate_password_hash('password'))
+}
 
 # Загрузчик пользователя
 @login_manager.user_loader
 def load_user(user_id):
-    return User(user_id)
+    return users.get(int(user_id))
 
 # Форма для входа
 class LoginForm(FlaskForm):
@@ -52,25 +66,17 @@ class LoginForm(FlaskForm):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        # Здесь должна быть логика проверки пользователя
-        if form.username.data == 'admin' and form.password.data == 'password':
-            user = User(1)  # Пример пользователя
+        user = next((user for user in users.values() if user.username == form.username.data), None)
+        if user and user.check_password(form.password.data):
             login_user(user)
             flash('Вы успешно вошли!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('admin_boards'))
         else:
             flash('Неверное имя пользователя или пароль', 'error')
     return render_template('login.html', form=form)
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('Вы успешно вышли!', 'success')
-    return redirect(url_for('login'))
 @app.route('/')
 def show_frontpage():
-
     return render_template('home.html'), "Hello World!"
 
 @app.route('/visitors')
