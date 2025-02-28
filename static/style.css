@@ -13,12 +13,28 @@
     box-sizing: border-box;
 }
 
+div {
+	size: 100%;
+}
 body {
     color: var(--text-color);
     background: var(--bg-color);
     margin: 0;
     line-height: 1.5;
     min-height: 100vh;
+	size: 100%;
+}
+center {
+	align-items: center;
+}
+
+.admin-login {
+	display: block;
+	align-items: center;
+	color: white;
+	text-decoration: none;
+	font-size: 20px;
+	margin: 7px;
 }
 
 /* Контейнер для центрирования контента */
