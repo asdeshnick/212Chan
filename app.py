@@ -7,13 +7,11 @@ from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
 from flask_misaka import Misaka
 from flask_wtf import FlaskForm
-from flask_wtf import FlaskForm
 from datetime import datetime
 from database import db
 from util import *
 import sqlite3
 import config
-
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -27,11 +25,6 @@ Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
-# Настройка Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
 # Модель пользователя
 class User(UserMixin):
     def __init__(self, id, username, password_hash):
@@ -40,11 +33,11 @@ class User(UserMixin):
         self.password_hash = password_hash
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return self.password_hash == password  # В реальном приложении используйте check_password_hash
 
 # Пример базы данных пользователей
 users = {
-    1: User(1, 'admin', generate_password_hash('password'))
+    1: User(1, 'admin', 'password')  # В реальном приложении используйте хеширование пароля
 }
 
 # Загрузчик пользователя
@@ -52,30 +45,53 @@ users = {
 def load_user(user_id):
     return users.get(int(user_id))
 
-# Форма для входа
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
-
 # Маршрут для входа
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = next((user for user in users.values() if user.username == form.username.data), None)
-        if user and user.check_password(form.password.data):
-            login_user(user)
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = next((user for user in users.values() if user.username == username), None)
+        if user and user.check_password(password):
+            login_user(user)  # Сохраняем пользователя в сессии
             flash('Вы успешно вошли!', 'success')
-            return redirect(url_for('admin_boards'))
+            return redirect(url_for('admin_dashboard'))
         else:
             flash('Неверное имя пользователя или пароль', 'error')
-    return render_template('login.html', form=form)
+    return render_template('login.html')
+
+# Защищенный маршрут
+@app.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    return "Welcome to the Admin Dashboard!"
+
+# Отключаем кэширование
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
+
+
+# Настройка Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Указываем имя маршрута для входа
+login_manager.login_message = "Пожалуйста, войдите, чтобы получить доступ к этой странице."
+login_manager.login_message_category = "error"
+
+# Пример базы данных пользователей
+users = {
+    1: User(1, 'admin', generate_password_hash('password'))     # а также вродн хеширование пароля
+}   
 
 @app.route('/')
 def show_frontpage():
     return render_template('home.html'), "Hello World!"
 
+# Маршрут для чека пользователей
 @app.route('/visitors')
 def show_visitors():
     conn = sqlite3.connect('visitors.db')
@@ -85,6 +101,7 @@ def show_visitors():
     conn.close()
     return render_template('index.html', visitors=visitors)
 
+# Маршрут для ALL
 @app.route('/all/')
 def show_all():
     OPs = get_OPs_all()
@@ -161,53 +178,34 @@ def add_reply():
     db.session.commit()
     return redirect('/' + board + '/') #+ thread)
 
-@app.route('/del')
-def delete():
-    post_id = request.args.get('id')
-    delete_post(post_id)
-    board = request.args.get('board')
-    thread = request.args.get('thread')
-    return redirect('/' + board + '/' + thread)
-
-
-def is_valid_admin(username, password):
-    # Здесь должна быть реальная проверка логина и пароля
-    return username == 'admin' and password == 'admin123'
-
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    error = None
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        if is_valid_admin(username, password):
-            session['logged_in'] = True
-            return redirect(url_for('admin_boards'))
-        else:
-            error = 'Invalid credentials. Please try again.'
-    
-    return render_template('login-admin.html', error=error)
+# @app.route('/del')
+# def delete():
+#     post_id = request.args.get('id')
+#     delete_post(post_id)
+#     board = request.args.get('board')
+#     thread = request.args.get('thread')
+#     return redirect('/' + board + '/' + thread)
 
 @app.route('/admin/dashboard')
+@login_required
 def admin_dashboard():
-    if not session.get('logged_in'):
-        return redirect(url_for('admin_login'))
     return "Welcome to the Admin Dashboard!"
 
 @app.route('/admin/boards')
+@login_required
 def admin_boards():
     boards = db.session.query(Boards).all()
     return render_template('admin_boards.html', boards=boards)
 
-
 @app.route('/admin/boards/create', methods=['GET', 'POST'])
+@login_required
 def admin_create_board():
     if request.method == 'POST':
         return create_board()
     return render_template('admin_create_board.html')
 
 @app.route('/admin/boards/edit/<name>', methods=['GET', 'POST'])
+@login_required
 def admin_edit_board(name):
     if request.method == 'POST':
         return edit_board(name)
@@ -215,30 +213,35 @@ def admin_edit_board(name):
     return render_template('admin_edit_board.html', board=board)
 
 @app.route('/admin/boards/delete/<name>', methods=['POST'])
+@login_required
 def admin_delete_board(name):
     return delete_board(name)
 
 @app.route('/admin/posts')
+@login_required
 def admin_posts():
     posts = db.session.query(Posts).order_by(Posts.date.desc()).all()
     return render_template('admin_posts.html', posts=posts)
 
 @app.route('/admin/posts/delete/<int:id>', methods=['POST'])
+@login_required
 def admin_delete_post(id):
     return delete_post(id)
 
 @app.route('/admin/posts/restore/<int:id>', methods=['POST'])
+@login_required
 def admin_restore_post(id):
     return restore_post(id)
 
 @app.route('/admin/posts/permanently_delete/<int:id>', methods=['POST'])
+@login_required
 def admin_permanently_delete_post(id):
     return permanently_delete_post(id)
 
 @app.route('/admin/posts/delete_image/<int:id>', methods=['POST'])
+@login_required
 def admin_delete_image(id):
     return delete_image_from_post(id)
-
 
 def create_db():
     conn = sqlite3.connect('visitors.db')
@@ -261,8 +264,6 @@ def save_visitor(ip_address, user_agent):
     c.execute('''INSERT INTO visitors (ip_address, user_agent) VALUES (?, ?)''', (ip_address, user_agent))
     conn.commit()
     conn.close()
-
-
 
 if __name__ == '__main__':
     # main1()
