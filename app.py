@@ -63,7 +63,7 @@ def login():
         if user and user.check_password(password):
             login_user(user)  # Сохраняем пользователя в сессии
             flash('Вы успешно вошли!', 'success')
-            return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('admin_boards'))
         else:
             flash('Неверное имя пользователя или пароль', 'error')
     return render_template('login.html')
@@ -172,15 +172,6 @@ def add_reply():
         bump_thread(thread)
     db.session.commit()
     return redirect('/' + board + '/') #+ thread)
-
-# @app.route('/del')
-# def delete():
-#     post_id = request.args.get('id')
-#     delete_post(post_id)
-#     board = request.args.get('board')
-#     thread = request.args.get('thread')
-#     return redirect('/' + board + '/' + thread)
-
 
 
 @app.route('/admin/boards')
