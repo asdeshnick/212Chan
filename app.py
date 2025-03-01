@@ -25,6 +25,14 @@ Misaka(app=app, escape=True, no_images=True,
        wrap=True, autolink=True, no_intra_emphasis=True,
        space_headers=True)
 
+
+# Настройка Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Страница входа
+login_manager.login_message = "Пожалуйста, войдите, чтобы получить доступ к этой странице."
+login_manager.login_message_category = "error"
+
 # Модель пользователя
 class User(UserMixin):
     def __init__(self, id, username, password_hash):
@@ -33,11 +41,11 @@ class User(UserMixin):
         self.password_hash = password_hash
 
     def check_password(self, password):
-        return self.password_hash == password  # В реальном приложении используйте check_password_hash
+        return check_password_hash(self.password_hash, password)
 
 # Пример базы данных пользователей
 users = {
-    1: User(1, 'admin', 'password')  # В реальном приложении используйте хеширование пароля
+    1: User(1, 'admin', generate_password_hash('password'))  # Хеширование пароля
 }
 
 # Загрузчик пользователя
@@ -75,20 +83,16 @@ def add_no_cache_headers(response):
     return response
 
 
-# Настройка Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'  # Указываем имя маршрута для входа
-login_manager.login_message = "Пожалуйста, войдите, чтобы получить доступ к этой странице."
-login_manager.login_message_category = "error"
-
-# Пример базы данных пользователей
-users = {
-    1: User(1, 'admin', generate_password_hash('password'))     # а также вродн хеширование пароля
-}   
-
 @app.route('/')
 def show_frontpage():
+    # Получение IP-адреса пользователя
+    ip_address = request.remote_addr
+    print(ip_address)
+    # Получение User-Agent пользователя
+    user_agent = request.headers.get('User-Agent')
+    print(user_agent)
+    save_visitor(ip_address, user_agent)
+    
     return render_template('home.html'), "Hello World!"
 
 # Маршрут для чека пользователей
@@ -110,15 +114,6 @@ def show_all():
         replies = get_last_replies(OP.id)
         entry_list.append(OP)
         entry_list += replies[::-1]
-    
-    # Получение IP-адреса пользователя
-    ip_address = request.remote_addr
-    print(ip_address)
-    # Получение User-Agent пользователя
-    user_agent = request.headers.get('User-Agent')
-    print(user_agent)
-    save_visitor(ip_address, user_agent)
-
     return render_template('show_all.html', entries=entry_list, board='all')
 
 @app.route('/<board>/')
@@ -186,10 +181,7 @@ def add_reply():
 #     thread = request.args.get('thread')
 #     return redirect('/' + board + '/' + thread)
 
-@app.route('/admin/dashboard')
-@login_required
-def admin_dashboard():
-    return "Welcome to the Admin Dashboard!"
+
 
 @app.route('/admin/boards')
 @login_required
