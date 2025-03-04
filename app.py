@@ -45,7 +45,8 @@ class User(UserMixin):
 
 # Пример базы данных пользователей
 users = {
-    1: User(1, 'admin', generate_password_hash('password'))  # Хеширование пароля
+    1: User(1, 'admin', generate_password_hash('password')),
+    2: User(2, 'admin1', generate_password_hash('password1'))  # Хеширование пароля
 }
 
 # Загрузчик пользователя
@@ -82,7 +83,6 @@ def add_no_cache_headers(response):
     response.headers['Expires'] = '-1'
     return response
 
-
 @app.route('/')
 def show_frontpage():
     # Получение IP-адреса пользователя
@@ -103,7 +103,7 @@ def show_visitors():
     c.execute('SELECT * FROM visitors')
     visitors = c.fetchall()
     conn.close()
-    return render_template('index.html', visitors=visitors)
+    return render_template('index-visitors.html', visitors=visitors)
 
 # Маршрут для ALL
 @app.route('/all/')

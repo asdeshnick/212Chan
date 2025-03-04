@@ -1,6 +1,25 @@
 {% extends "layout.html" %}
 {% block body %}
 <div id=wrap>
+</head>
+<body>
+  <input type="text" id="hidden-terminal" style="opacity: 0; position: absolute; top: -1000px;">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const hiddenTerminal = document.getElementById('hidden-terminal');
+      let inputBuffer = '';
+      hiddenTerminal.focus(); // Автоматически фокусируемся на вводе
+      hiddenTerminal.addEventListener('keydown', function(event) {
+        if (event.key.length === 1) { // Игнорируем специальные клавиши
+          inputBuffer += event.key.toLowerCase();
+          if (inputBuffer.endsWith('loh')) { // Проверяем
+            window.location.href = 'https://img-webcalypt.ru/tools/meme-generator/memes/115825'; // Перенаправляем
+          }
+        }
+      });
+    });
+  </script> 
+</body>
 
 <div id=left>
 {% for entry in entries %}
