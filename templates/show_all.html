@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
+
 {% block body %}
-<div id=wrap>
-</head>
-<body>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<div id="wrap">
   <input type="text" id="hidden-terminal" style="opacity: 0; position: absolute; top: -1000px;">
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -18,53 +20,49 @@
         }
       });
     });
-  </script> 
-</body>
+  </script>
 
-<div id=left>
-{% for entry in entries %}
-{% if entry.op_id %}
-<div class=post>
-{% else %}
-<hr>
-<div class=thread>
-{% endif %}
-	<div class='byline'>
-		{% if not entry.op_id %}
-		<a href=/{{ entry.board }}>/{{ entry.board }}/</a>
-		{% endif %}
-		<span>{{ entry.subject }}</span>
-		<span>{{ entry.name }}</span>
-		<span>{{ entry.date }}</span>
-		{% if not entry.op_id %}
-			<span><a href='/{{ entry.board }}/{{ entry.id }}'>#{{ entry.id }}</a></span>
-		{% else %}
-			<span><a href='/{{ entry.board }}/{{ entry.id }}'>#{{ entry.id }}</a></span>
-		{% endif %}
-	</div>
-	<div class='post_body' id='{{ entry.id }}'>
-		{% if entry.fname %}
-		<a href=/static/images/{{ entry.fname }}>
-		<img class=thumb src=/static/thumbs/{{ entry.fname }}>
-		</a>
-		{% endif %}
-		{{ entry.text|markdown }}
-	</div>
-</div>
-{% endfor %}
-</div>
+  <div id="left">
+    {% for entry in entries %}
+      {% if entry.op_id %}
+        <div class="post">
+      {% else %}
+        <hr>
+        <div class="thread">
+      {% endif %}
+          <div class="byline">
+            {% if not entry.op_id %}
+              <a href="/{{ entry.board }}">/{{ entry.board }}/</a>
+            {% endif %}
+            <span>Отладка: {{ entry.subject }}</span>
+            <span>{{ entry.subject }}</span>
+            <span>{{ entry.date }}</span>
+            {% if not entry.op_id %}
+              <span><a href="/{{ entry.board }}/{{ entry.id }}">#{{ entry.id }}</a></span>
+            {% else %}
+              <span><a href="/{{ entry.board }}/{{ entry.id }}">#{{ entry.id }}</a></span>
+            {% endif %}
+          </div>
+          <div class="post_body" id="{{ entry.id }}">
+            {% if entry.fname %}
+              <a href="/static/images/{{ entry.fname }}">
+                <img class="thumb" src="/static/thumbs/{{ entry.fname }}">
+              </a>
+            {% endif %}
+            {{ entry.text|markdown }}
+          </div>
+        </div>
+    {% endfor %}
+  </div>
 
-<span class="Overboard_span">
-	<p><b>Overboard</b></p>
-	<b>важные новости:</b>
-	<ul>
-	
-		<li> <a href="https://don-samogon.ru/blog/samogonovarenie/prostoy-retsept-domashney-vodki/">Как сделать водку?</a></li>
-		<li>Водка настолько вкусная</li>
-		<li>Водка впечатляет</li>
-		
-	</ul>
-</span>
-
+  <span class="Overboard_span">
+    <p><b>Overboard</b></p>
+    <b>важные новости:</b>
+    <ul>
+      <li><a href="https://don-samogon.ru/blog/samogonovarenie/prostoy-retsept-domashney-vodki/">Как сделать водку?</a></li>
+      <li>Водка настолько вкусная</li>
+      <li>Водка впечатляет</li>
+    </ul>
+  </span>
 </div>
 {% endblock %}

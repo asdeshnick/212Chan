@@ -1,35 +1,35 @@
 {% extends "layout.html" %}
+
 {% block body %}
-<div id=wrap>
+<div id="wrap">
+    <div id="left">
+        {% for entry in entries %}
+            {% if entry.op_id %}
+                <div class="post">
+            {% else %}
+                <hr>
+                <div class="thread">
+            {% endif %}
+                    <div class="byline">
+                        <span>{{ entry.subject }}</span>
+                        <span>{{ entry.name }}</span>
+                        <span>{{ entry.date }}</span>
+                        <!-- <p>#{{ entry.id }}</p> -->
+                        <!-- Добавляем вызов функции -->
+                        <a href="#{{ entry.id }}" onclick="preventInput(event); cite({{ entry.id }}); return false;">#{{ entry.id }}</a>
+                    </div>
+                    <div class="post_body" id="{{ entry.id }}">
+                        {% if entry.fname %}
+                            <a href="/static/images/{{ entry.fname }}">
+                                <img class="thumb" src="/static/thumbs/{{ entry.fname }}">
+                            </a>
+                        {% endif %}
+                        {{ entry.text|markdown }}
+                    </div>
+                </div>
+        {% endfor %}
+    </div>
 
-<div id=left>
-{% for entry in entries %}
-{% if entry.op_id %}
-<div class=post>
-{% else %}
-<hr>
-<div class=thread>
-{% endif %}
-	<div class='byline'>
-		<span>{{ entry.subject }}</span>
-		<span>{{ entry.name }}</span>
-		<span>{{ entry.date }}</span>
-		<!-- <p>#{{ entry.id }}</p> -->
-		<!-- Добавляем вызов функции -->
-		<a href='#{{ entry.id }}' onclick="preventInput(event); cite({{ entry.id }}); return false;">#{{ entry.id }}</a> 
-	</div>
-	<div class='post_body' id='{{ entry.id }}'>
-		{% if entry.fname %}
-		<a href=/static/images/{{ entry.fname }}>
-		<img class=thumb src=/static/thumbs/{{ entry.fname }}>
-		</a>
-		{% endif %}
-		{{ entry.text|markdown }}
-	</div>
-</div>
-{% endfor %}
-</div>
-
-{% include 'sidebar.html' %}
+    {% include 'sidebar.html' %}
 </div>
 {% endblock %}

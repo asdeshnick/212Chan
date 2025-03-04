@@ -62,7 +62,7 @@ def login():
         password = request.form.get('password')
         user = next((user for user in users.values() if user.username == username), None)
         if user and user.check_password(password):
-            login_user(user)  # Сохраняем пользователя в сессии
+            # login_user(user)  # Сохраняем пользователя в сессии
             flash('Вы успешно вошли!', 'success')
             return redirect(url_for('admin_boards'))
         else:
@@ -86,8 +86,12 @@ def add_no_cache_headers(response):
 @app.route('/')
 def show_frontpage():
     # Получение IP-адреса пользователя
+    
     ip_address = request.remote_addr
-    print(ip_address)
+    if ip_address == None:
+        print("None")
+    else:
+        print(ip_address)
     # Получение User-Agent пользователя
     user_agent = request.headers.get('User-Agent')
     print(user_agent)
@@ -114,6 +118,7 @@ def show_all():
         replies = get_last_replies(OP.id)
         entry_list.append(OP)
         entry_list += replies[::-1]
+
     return render_template('show_all.html', entries=entry_list, board='all')
 
 @app.route('/<board>/')
@@ -162,7 +167,8 @@ def new_thread():
 def add_reply():
     board = request.form['board']
     thread = request.form['op_id']
-    print(thread, board)
+    subject = request.form['subject']
+    print(thread, board, subject)
     if no_content_or_image():
         return redirect('/' + board + '/')
 

@@ -1,25 +1,23 @@
 {% extends "layout.html" %}
+
 {% block body %}
-<div id=wrap>
-
-{% for entry in entries %}
-<div class=catalog>
-	<div class='byline'>
-		<span>{{ entry.subject }}</span>
-		<span>{{ entry.name }}</span>
-		<span>{{ entry.date }}</span>
-	</div>
-	<div class='post_body' id='{{ entry.id }}'>
-		{% if entry.fname %}
-		<a href='{{ entry.id }}'>
-		<img class=thumb src=/static/thumbs/{{ entry.fname }}>
-		</a>
-		{% endif %}
-		{{ entry.text|markdown }}
-	</div>
-</div>
-{% endfor %}
-
-
+<div id="wrap">
+    {% for entry in entries %}
+        <div class="catalog">
+            <div class="byline">
+                <span>{{ entry.name }}</span>
+                <span>{{ entry.subject }}</span>
+                <span>{{ entry.date }}</span>
+            </div>
+            <div class="post_body" id="{{ entry.id }}">
+                {% if entry.fname %}
+                    <a href="{{ entry.id }}">
+                        <img class="thumb" src="/static/thumbs/{{ entry.fname }}">
+                    </a>
+                {% endif %}
+                {{ entry.text|markdown }}
+            </div>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}
