@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    
+    <h2>Управление постами</h2>
+        <ul>
+            {% for post in posts %}
+            <div class="redact_posts"></div>
+                <li>
+                    <strong>{{ post.name }}</strong> - {{ post.date }}
+                    <p>{{ post.text }}</p>
+                    {% if post.fname %}
+                        <img src="{{ url_for('static', filename='uploads/' + post.fname) }}" alt="Image">
+                    {% endif %}
+                    <form action="{{ url_for('admin_delete_post', id=post.id) }}" method="POST">
+                        <button type="submit">Удалить</button>
+                    </form>
+                    <form action="{{ url_for('admin_restore_post', id=post.id) }}" method="POST">
+                        <button type="submit">Восстановить</button>
+                    </form>
+                    <form action="{{ url_for('admin_permanently_delete_post', id=post.id) }}" method="POST">
+                        <button type="submit">Полностью удалить</button>
+                    </form>
+                    {% if post.fname %}
+                        <form action="{{ url_for('admin_delete_image', id=post.id) }}" method="POST">
+                            <button type="submit">Удалить изображение</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </div>
+    </ul>
+{% endblock %}

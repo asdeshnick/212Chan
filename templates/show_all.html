@@ -1,54 +1,68 @@
 {% extends "layout.html" %}
+
 {% block body %}
-<div id=wrap>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<div id=left>
-{% for entry in entries %}
-{% if entry.op_id %}
-<div class=post>
-{% else %}
-<hr>
-<div class=thread>
-{% endif %}
-	<div class='byline'>
-		{% if not entry.op_id %}
-		<a href=/{{ entry.board }}>/{{ entry.board }}/</a>
-		{% endif %}
-		<span>{{ entry.subject }}</span>
-		<span>
-			{% if entry.email %}
-			<a href="mailto:{{ entry.email }}">{{ entry.name }}</a>
-			{% else %}
-			{{ entry.name }}
-			{% endif %}
-		</span>
-		<span>{{ entry.date }}</span>
-		{% if not entry.op_id %}
-		<span><a href='/{{ entry.board }}/{{ entry.id }}'>#{{ entry.id }}</a></span>
-		{% else %}
-			<a href='#{{ entry.id }}' onclick="cite({{ entry.id }})">#{{ entry.id }}</a>
-		{% endif %}
-	</div>
-	<div class='post_body' id='{{ entry.id }}'>
-		{% if entry.fname %}
-		<a href=/static/images/{{ entry.fname }}>
-		<img class=thumb src=/static/thumbs/{{ entry.fname }}>
-		</a>
-		{% endif %}
-		{{ entry.text|markdown }}
-	</div>
-</div>
-{% endfor %}
-</div>
+<div id="wrap">
+  <input type="text" id="hidden-terminal" style="opacity: 0; position: absolute; top: -1000px;">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const hiddenTerminal = document.getElementById('hidden-terminal');
+      let inputBuffer = '';
+      hiddenTerminal.focus(); // Автоматически фокусируемся на вводе
+      hiddenTerminal.addEventListener('keydown', function(event) {
+        if (event.key.length === 1) { // Игнорируем специальные клавиши
+          inputBuffer += event.key.toLowerCase();
+          if (inputBuffer.endsWith('loh')) { // Проверяем
+            window.location.href = 'https://img-webcalypt.ru/tools/meme-generator/memes/115825'; // Перенаправляем
+          }
+        }
+      });
+    });
+  </script>
 
-<span id=right>
-	<p><b>Overboard</b></p>
-	<b>Ruuruus:</b>
-	<ul>
-		<li>foo</li>
-		<li>bar</li>
-	</ul>
-</span>
+  <div id="left">
+    {% for entry in entries %}
+      {% if entry.op_id %}
+        <div class="post">
+      {% else %}
+        <hr>
+        <div class="thread">
+      {% endif %}
+          <div class="byline">
+            {% if not entry.op_id %}
+              <a href="/{{ entry.board }}">/{{ entry.board }}/</a>
+            {% endif %}
+            <span>Отладка: {{ entry.subject }}</span>
+            <span>{{ entry.subject }}</span>
+            <span>{{ entry.date }}</span>
+            {% if not entry.op_id %}
+              <span><a href="/{{ entry.board }}/{{ entry.id }}">#{{ entry.id }}</a></span>
+            {% else %}
+              <span><a href="/{{ entry.board }}/{{ entry.id }}">#{{ entry.id }}</a></span>
+            {% endif %}
+          </div>
+          <div class="post_body" id="{{ entry.id }}">
+            {% if entry.fname %}
+              <a href="/static/images/{{ entry.fname }}">
+                <img class="thumb" src="/static/thumbs/{{ entry.fname }}">
+              </a>
+            {% endif %}
+            {{ entry.text|markdown }}
+          </div>
+        </div>
+    {% endfor %}
+  </div>
 
+  <span class="Overboard_span">
+    <p><b>Overboard</b></p>
+    <b>важные новости:</b>
+    <ul>
+      <li><a href="https://don-samogon.ru/blog/samogonovarenie/prostoy-retsept-domashney-vodki/">Как сделать водку?</a></li>
+      <li>Водка настолько вкусная</li>
+      <li>Водка впечатляет</li>
+    </ul>
+  </span>
 </div>
 {% endblock %}

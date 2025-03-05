@@ -1,4 +1,4 @@
-from app import db
+from database import db
 
 class Boards(db.Model):
     __tablename__ = 'boards'
@@ -10,11 +10,10 @@ class Boards(db.Model):
 class Posts(db.Model):
     __tablename__ = 'posts'
     id        = db.Column(db.Integer, primary_key = True)
-    op_id     = db.Column(db.Integer)
+    op_id     = db.Column(db.Integer) #primary_key = True)
     board     = db.Column(db.String)
     name      = db.Column(db.String)
     subject   = db.Column(db.String)
-    email     = db.Column(db.String)
     date      = db.Column(db.String)
     fname     = db.Column(db.String)
     text      = db.Column(db.Text)

@@ -1,15 +1,18 @@
 <!doctype html>
 <title>/{{ board }}/</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="globals.css" />
+<link rel="stylesheet" href="style.css" />
 
 {% block header %}
 <center>
-<div id='header'> [
+<div class="header"> [
 	<a href='/'>home</a>
-	<a href='/all'>all</a> ][ 
-	<a href='/learn'>learn</a>
-	<a href='/create'>create</a>
-	<a href='/media'>media</a> ]
+	<a href='/all'>Все</a> ][ 
+	<a href='/learn'>Учеба</a>
+	<a href='/teacher'>Учителя</a>
+	<a href='/media'>Фоточки</a> 
+	<a href="/nsfw">NSFW</a> ]
 </div>
 {% endblock %}
 
