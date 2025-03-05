@@ -78,6 +78,7 @@ def new_post(board, op_id = 1):
                     date    = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     fname   = upload_file(),
                     op_id   = op_id, # Threads are normal posts with op_id set to 0
+                    subject = request.form['subject'],
                     deleted = False)
     db.session.add(newPost)
     db.session.commit()

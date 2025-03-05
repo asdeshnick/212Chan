@@ -27,14 +27,6 @@ center {
 	align-items: center;
 }
 
-.admin-login {
-	display: block;
-	align-items: center;
-	color: white;
-	text-decoration: none;
-	font-size: 20px;
-	margin: 7px;
-}
 
 .container {
     width: var(--container-width);
@@ -112,7 +104,14 @@ p {
 	padding: 10px;
 	margin: 5px;
 }
-
+.admin-link {
+	display: block;
+	align-items: center;
+	color: white;
+	text-decoration: none;
+	font-size: 20px;
+	margin: 7px;
+}
 .input_span {
 	width: 300px;
 	border-radius: 30px;
@@ -134,8 +133,6 @@ p {
 	color: #be1b1b;
 	padding: 10px;
 }
-
-
 
 .file_input {
 	background-color: #31313196;
@@ -189,13 +186,7 @@ blockquote {
 }
 
 .img_home {
-	width: 400px;
-	height: 400px;
-	margin: 20px;
-}
-
-.img_home2 {
-	width: 400px;
+	width: 600px;
 	height: 400px;
 	margin: 20px;
 }
