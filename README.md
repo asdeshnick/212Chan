@@ -1,1 +1,1 @@
-![Imgur](https://imgur.com/gzcKxyf)
+![Логотип](.static/images/sosa.png)
