@@ -1,1 +1,1 @@
-![212Chan](sosal_21111112.png)g
+![212Chan](baner_212chan.png)
