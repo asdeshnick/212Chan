@@ -26,13 +26,6 @@ Misaka(app=app, escape=True, no_images=True,
        space_headers=True)
 
 
-# Настройка Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'  # Страница входа
-login_manager.login_message = "Пожалуйста, войдите, чтобы получить доступ к этой странице."
-login_manager.login_message_category = "error"
-
 # Модель пользователя
 class User(UserMixin):
     def __init__(self, id, username, password_hash):
@@ -43,11 +36,20 @@ class User(UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+
+# Настройка Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Страница входа
+login_manager.login_message = "Пожалуйста, войдите, чтобы получить доступ к этой странице."
+login_manager.login_message_category = "error"
+
 # Пример базы данных пользователей
 users = {
     1: User(1, 'admin', generate_password_hash('password')),
     2: User(2, 'admin1', generate_password_hash('password1'))  # Хеширование пароля
 }
+
 
 # Загрузчик пользователя
 @login_manager.user_loader
@@ -74,6 +76,58 @@ def login():
 @login_required
 def admin_dashboard():
     return "Welcome to the Admin Dashboard!"
+
+@app.route('/admin/boards')
+@login_required
+def admin_boards():
+    boards = db.session.query(Boards).all()
+    return render_template('admin_boards.html', boards=boards)
+
+@app.route('/admin/boards/create', methods=['GET', 'POST'])
+@login_required
+def admin_create_board():
+    if request.method == 'POST':
+        return create_board()
+    return render_template('admin_create_board.html')
+
+@app.route('/admin/boards/edit/<name>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_board(name):
+    if request.method == 'POST':
+        return edit_board(name)
+    board = db.session.query(Boards).filter_by(name=name).first()
+    return render_template('admin_edit_board.html', board=board)
+
+@app.route('/admin/boards/delete/<name>', methods=['POST'])
+@login_required
+def admin_delete_board(name):
+    return delete_board(name)
+
+@app.route('/admin/posts')
+@login_required
+def admin_posts():
+    posts = db.session.query(Posts).order_by(Posts.date.desc()).all()
+    return render_template('admin_posts.html', posts=posts)
+
+@app.route('/admin/posts/delete/<int:id>', methods=['POST'])
+@login_required
+def admin_delete_post(id):
+    return delete_post(id)
+
+@app.route('/admin/posts/restore/<int:id>', methods=['POST'])
+@login_required
+def admin_restore_post(id):
+    return restore_post(id)
+
+@app.route('/admin/posts/permanently_delete/<int:id>', methods=['POST'])
+@login_required
+def admin_permanently_delete_post(id):
+    return permanently_delete_post(id)
+
+@app.route('/admin/posts/delete_image/<int:id>', methods=['POST'])
+@login_required
+def admin_delete_image(id):
+    return delete_image_from_post(id)
 
 # Отключаем кэширование
 @app.after_request
@@ -179,58 +233,13 @@ def add_reply():
     db.session.commit()
     return redirect('/' + board + '/') #+ thread)
 
-
-@app.route('/admin/boards')
-@login_required
-def admin_boards():
-    boards = db.session.query(Boards).all()
-    return render_template('admin_boards.html', boards=boards)
-
-@app.route('/admin/boards/create', methods=['GET', 'POST'])
-@login_required
-def admin_create_board():
-    if request.method == 'POST':
-        return create_board()
-    return render_template('admin_create_board.html')
-
-@app.route('/admin/boards/edit/<name>', methods=['GET', 'POST'])
-@login_required
-def admin_edit_board(name):
-    if request.method == 'POST':
-        return edit_board(name)
-    board = db.session.query(Boards).filter_by(name=name).first()
-    return render_template('admin_edit_board.html', board=board)
-
-@app.route('/admin/boards/delete/<name>', methods=['POST'])
-@login_required
-def admin_delete_board(name):
-    return delete_board(name)
-
-@app.route('/admin/posts')
-@login_required
-def admin_posts():
-    posts = db.session.query(Posts).order_by(Posts.date.desc()).all()
-    return render_template('admin_posts.html', posts=posts)
-
-@app.route('/admin/posts/delete/<int:id>', methods=['POST'])
-@login_required
-def admin_delete_post(id):
-    return delete_post(id)
-
-@app.route('/admin/posts/restore/<int:id>', methods=['POST'])
-@login_required
-def admin_restore_post(id):
-    return restore_post(id)
-
-@app.route('/admin/posts/permanently_delete/<int:id>', methods=['POST'])
-@login_required
-def admin_permanently_delete_post(id):
-    return permanently_delete_post(id)
-
-@app.route('/admin/posts/delete_image/<int:id>', methods=['POST'])
-@login_required
-def admin_delete_image(id):
-    return delete_image_from_post(id)
+# Функция для сохранения данных о посетителе в базу данных
+def save_visitor(ip_address, user_agent):
+    conn = sqlite3.connect('visitors.db')
+    c = conn.cursor()
+    c.execute('''INSERT INTO visitors (ip_address, user_agent) VALUES (?, ?)''', (ip_address, user_agent))
+    conn.commit()
+    conn.close()
 
 def create_db():
     conn = sqlite3.connect('visitors.db')
@@ -246,16 +255,8 @@ def create_db():
     conn.commit()
     conn.close()
 
-# Функция для сохранения данных о посетителе в базу данных
-def save_visitor(ip_address, user_agent):
-    conn = sqlite3.connect('visitors.db')
-    c = conn.cursor()
-    c.execute('''INSERT INTO visitors (ip_address, user_agent) VALUES (?, ?)''', (ip_address, user_agent))
-    conn.commit()
-    conn.close()
 
 if __name__ == '__main__':
-    # main1()
     create_db()
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
     print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])

@@ -12,7 +12,8 @@
 	<a href='/learn'>Учеба</a>
 	<a href='/teacher'>Учителя</a>
 	<a href='/media'>Фоточки</a> 
-	<a href="/nsfw">NSFW</a> ]
+	<a href="/nsfw" id="nsfw-link">NSFW</a> ]
+
 </div>
 {% endblock %}
 
@@ -26,4 +27,16 @@
 function cite(id) {
 	document.getElementById('comment').value+="[@" + id + "](#" + id + ")\n";
 }
+
+document.getElementById('nsfw-link').addEventListener('click', function(event) {
+    event.preventDefault(); // Предотвращаем стандартное поведение ссылки
+    var age = prompt("Пожалуйста, введите ваш возраст:");
+	const href_mult = "https://rutube.ru/video/53f6d877a7b159a5697f5b8127c84177/?utm_source=embed&utm_medium=referral&utm_campaign=main_logo&utm_content=53f6d877a7b159a5697f5b8127c84177&utm_term=yandex-video.naydex.net&referrer=appmetrica_tracking_id%3D1037877625579705379%26ym_tracking_id%3D8630247372169075480"
+
+    if (age && parseInt(age) >= 18) {
+        window.location.href = "/nsfw"; // Перенаправляем на NSFW страницу
+    } else {
+        window.location.href = href_mult ; // Перенаправляем на сайт с мультиками
+    }
+});
 </script>
