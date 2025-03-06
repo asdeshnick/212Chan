@@ -1,1 +1,1 @@
-![banner](.static/images/sosa.png)
+![banner](.sosal_21111112.png)
