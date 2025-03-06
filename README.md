@@ -1,1 +1,1 @@
-![Логотип](.static/images/sosa.png)
+![banner](.static/images/sosa.png)
