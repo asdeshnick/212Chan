@@ -16,9 +16,9 @@
 <script>
     document.getElementById('admin-link').addEventListener('click', function(event) {
         event.preventDefault(); // Предотвращаем стандартное поведение ссылки
-        var sosal = prompt("Cосал?");
+        var prompt_admin = prompt("'пиво или 'водка'?");
     
-        if (sosal == "да") {
+        if (prompt_admin == "пиво") {
             window.location.href = "/login"; // Перенаправляем 
         } else {
             alert("иди гуляй");
