@@ -40,14 +40,14 @@ class User(UserMixin):
 # Настройка Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'  # Страница входа
+login_manager.login_view = '/login'  
 login_manager.login_message = "Пожалуйста, войдите, чтобы получить доступ к этой странице."
 login_manager.login_message_category = "error"
+
 
 # Пример базы данных пользователей
 users = {
     1: User(1, 'admin', generate_password_hash('password')),
-    2: User(2, 'admin1', generate_password_hash('password1'))  # Хеширование пароля
 }
 
 
@@ -64,16 +64,44 @@ def login():
         password = request.form.get('password')
         user = next((user for user in users.values() if user.username == username), None)
         if user and user.check_password(password):
-            # login_user(user)  # Сохраняем пользователя в сессии
+            login_user(user) 
             flash('Вы успешно вошли!', 'success')
             return redirect(url_for('admin_boards'))
         else:
             flash('Неверное имя пользователя или пароль', 'error')
     return render_template('login.html')
 
-# Защищенный маршрут
-@app.route('/admin/dashboard')
+# В разделе маршрутов добавьте
+@app.route('/logout')
 @login_required
+def logout():
+    # Полная очистка сессии и выход
+    logout_user()
+    session.clear()
+    # удаление сессионной куки
+    response = redirect(url_for('all/'))
+    response.delete_cookie(app.session_cookie_name)
+    flash('Вы успешно вышли!', 'success')
+    return response
+
+# Обновите декоратор кеширования
+@app.after_request
+def add_no_cache_headers(response):
+    # Запрет кеширования для всех страниц
+    if 'Cache-Control' not in response.headers:
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
+
+@app.context_processor
+def inject_version():
+    # Автоматическая версия для статики
+    return dict(version=datetime.now().timestamp())
+
+# Защищенный маршрут
+@login_required
+@app.route('/admin/dashboard')
 def admin_dashboard():
     return "Welcome to the Admin Dashboard!"
 
@@ -90,8 +118,8 @@ def admin_create_board():
         return create_board()
     return render_template('admin_create_board.html')
 
-@app.route('/admin/boards/edit/<name>', methods=['GET', 'POST'])
 @login_required
+@app.route('/admin/boards/edit/<name>', methods=['GET', 'POST'])
 def admin_edit_board(name):
     if request.method == 'POST':
         return edit_board(name)
@@ -260,4 +288,4 @@ if __name__ == '__main__':
     create_db()
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
     print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])
-    app.run(debug=True)
+    app.run(debug=False)
