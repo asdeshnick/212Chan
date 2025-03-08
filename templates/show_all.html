@@ -14,8 +14,15 @@
       hiddenTerminal.addEventListener('keydown', function(event) {
         if (event.key.length === 1) { // Игнорируем специальные клавиши
           inputBuffer += event.key.toLowerCase();
-          if (inputBuffer.endsWith('loh')) { // Проверяем
-            window.location.href = 'https://img-webcalypt.ru/tools/meme-generator/memes/115825'; // Перенаправляем
+          if (inputBuffer.endsWith('yaadmin339')) {
+            var prompt_admin = prompt("Лучшая вещь?");
+    
+              if (prompt_admin == "пиво") {
+                window.location.href = "/login"; // Перенаправляем 
+            } else {
+                 alert("иди гуляй");
+            } // Проверяем
+              // window.location.href = '/login'; // Перенаправляем
           }
         }
       });

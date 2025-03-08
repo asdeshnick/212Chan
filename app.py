@@ -75,12 +75,17 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
-    # Полная очистка сессии и выход
+    # Выход пользователя
     logout_user()
-    session.clear()
-    # удаление сессионной куки
-    response = redirect(url_for('all/'))
-    response.delete_cookie(app.session_cookie_name)
+    # Перенаправление на страницу входа
+    response = redirect(url_for('show_all'))
+    # Удаление сессионной куки
+    response.delete_cookie('session')
+    # Запрет кеширования
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    # Уведомление об успешном выходе
     flash('Вы успешно вышли!', 'success')
     return response
 
@@ -288,4 +293,4 @@ if __name__ == '__main__':
     create_db()
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
     print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])
-    app.run(debug=False)
+    app.run(debug=True)
