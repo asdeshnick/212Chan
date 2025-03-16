@@ -3,8 +3,8 @@ from time import time
 from os.path import join
 from PIL import Image
 from models import Boards, Posts
-from __init__ import app
-from database import db
+
+from models import db
 from datetime import datetime
 import logging
 from config import *
@@ -213,3 +213,4 @@ def delete_image_from_post(id):
     db.session.commit()
     flash('Image deleted from post')
     return redirect(url_for('admin_posts'))
+

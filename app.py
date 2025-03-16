@@ -71,7 +71,7 @@ def login():
             flash('Неверное имя пользователя или пароль', 'error')
     return render_template('login.html')
 
-# В разделе маршрутов добавьте
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -89,7 +89,7 @@ def logout():
     flash('Вы успешно вышли!', 'success')
     return response
 
-# Обновите декоратор кеширования
+
 @app.after_request
 def add_no_cache_headers(response):
     # Запрет кеширования для всех страниц
@@ -104,7 +104,7 @@ def inject_version():
     # Автоматическая версия для статики
     return dict(version=datetime.now().timestamp())
 
-# Защищенный маршрут
+
 @login_required
 @app.route('/admin/dashboard')
 def admin_dashboard():
