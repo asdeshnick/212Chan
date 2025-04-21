@@ -1,22 +1,30 @@
 from database import db
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Boards(db.Model):
     __tablename__ = 'boards'
-    name        = db.Column(db.String, primary_key = True)
-    long_name   = db.Column(db.String)
+    name = db.Column(db.String, primary_key=True)
+    long_name = db.Column(db.String)
     description = db.Column(db.String)
-    hidden      = db.Column(db.Boolean)
+    hidden = db.Column(db.Boolean)
+    
+    def __repr__(self):
+        return f"<Board {self.name}>"
 
 class Posts(db.Model):
     __tablename__ = 'posts'
-    id        = db.Column(db.Integer, primary_key = True)
-    op_id     = db.Column(db.Integer) #primary_key = True)
-    board     = db.Column(db.String)
-    name      = db.Column(db.String)
-    subject   = db.Column(db.String)
-    date      = db.Column(db.String)
-    fname     = db.Column(db.String)
-    text      = db.Column(db.Text)
+    id = db.Column(db.Integer, primary_key=True)
+    op_id = db.Column(db.Integer)
+    board = db.Column(db.String)
+    name = db.Column(db.String)
+    subject = db.Column(db.String)
+    date = db.Column(db.String)
+    fname = db.Column(db.String)
+    text = db.Column(db.Text)
     last_bump = db.Column(db.DateTime)
-    deleted   = db.Column(db.Boolean)
+    deleted = db.Column(db.Boolean)
+    
+    def __repr__(self):
+        return f"<Post {self.id} in {self.board}>"

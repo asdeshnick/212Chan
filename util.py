@@ -3,34 +3,24 @@ from time import time
 from os.path import join
 from PIL import Image
 from models import Boards, Posts
-
 from models import db
 from datetime import datetime
 import logging
 from config import *
+import logging
 
-def board_inexistent(name):
+logger = logging.getLogger(__name__)
+
+
+
+def board_inexistent(name: str):
     
     if name not in BOARDS:
         flash('board ' + name + ' does not exist')
         return True
 
-def upload_file():
-    file = request.files['file']
-    fname = ''
-    if file and allowed_file(file.filename):
-        # Save file as <timestamp>.<extension>
-        ext = file.filename.rsplit('.', 1)[1]
-        fname = str(int(time() * 1000)) + '.' + ext
-        file.save(join(UPLOAD_FOLDER, fname))
 
-        # Pass to PIL to make a thumbnail
-        file = Image.open(file)
-        file.thumbnail((200,200), Image.Resampling.LANCZOS)
-        file.save(join(THUMBS_FOLDER, fname))
-    return fname
-
-def allowed_file(filename):
+def allowed_file(filename: str):
     return '.' in filename and \
         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -68,21 +58,6 @@ def get_thread_OP(id):
 def get_sidebar(board):
     return db.session.query(Boards).filter_by(name=board).first()
 
-def new_post(board, op_id = 1):
-    if 'name' not in request.form or 'post_content' not in request.form:
-        flash('Must include name and post content')
-        return None
-    newPost = Posts(board   = board,
-                    name    = request.form['name'],
-                    text    = request.form['post_content'],
-                    date    = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    fname   = upload_file(),
-                    op_id   = op_id, # Threads are normal posts with op_id set to 0
-                    subject = request.form['subject'],
-                    deleted = False)
-    db.session.add(newPost)
-    db.session.commit()
-    return newPost
 
 def bump_thread(op_id):
     try:
@@ -108,20 +83,6 @@ def reply_count(op_id):
         return 0
     return len(replies)
 
-# def delete_post(id):
-#     post = db.session.query(Posts).filter_by(id=id).first()
-#     if post is None:
-#         flash('Post not found')
-#         return None
-#     post.deleted = True
-#     db.session.add(post)
-#     db.session.commit()
-
-# def delete_image(id):
-#     post = db.session.query(Posts).filter_by(id=id).one()
-#     post.deleted_image = True
-#     db.session.add(post)
-#     db.session.commit()
 
 
 def create_board():
@@ -170,17 +131,6 @@ def delete_board(name):
     flash('Board deleted successfully')
     return redirect(url_for('admin_boards'))
 
-def delete_post(id):
-    post = db.session.query(Posts).filter_by(id=id).first()
-    if not post:
-        flash('Post not found')
-        return redirect(url_for('admin_posts'))
-
-    post.deleted = True
-    db.session.commit()
-    flash('Post deleted successfully')
-    return redirect(url_for('admin_posts'))
-
 def restore_post(id):
     post = db.session.query(Posts).filter_by(id=id).first()
     if not post:
@@ -214,3 +164,68 @@ def delete_image_from_post(id):
     flash('Image deleted from post')
     return redirect(url_for('admin_posts'))
 
+
+def upload_file():
+    try:
+        file = request.files['file']
+        fname = ''
+        if file and allowed_file(file.filename):
+            ext = file.filename.rsplit('.', 1)[1]
+            fname = str(int(time() * 1000)) + '.' + ext
+            file.save(join(UPLOAD_FOLDER, fname))
+            
+            file = Image.open(file)
+            file.thumbnail((200,200), Image.Resampling.LANCZOS)
+            file.save(join(THUMBS_FOLDER, fname))
+            
+            logger.info(f"File uploaded: {fname}")
+            return fname
+    except Exception as e:
+        logger.error(f"Error uploading file: {str(e)}")
+        raise
+
+def new_post(board, op_id=1):
+    try:
+        if 'name' not in request.form or 'post_content' not in request.form:
+            logger.warning("Missing name or content in new post")
+            flash('Must include name and post content')
+            return None
+            
+        newPost = Posts(
+            board=board,
+            name=request.form['name'],
+            text=request.form['post_content'],
+            date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            fname=upload_file(),
+            op_id=op_id,
+            subject=request.form['subject'],
+            deleted=False
+        )
+        db.session.add(newPost)
+        db.session.commit()
+        
+        logger.info(f"New post created: ID {newPost.id} in board {board}")
+        return newPost
+    except Exception as e:
+        logger.error(f"Error creating new post: {str(e)}")
+        db.session.rollback()
+        raise
+
+def delete_post(id):
+    try:
+        post = db.session.query(Posts).filter_by(id=id).first()
+        if not post:
+            logger.warning(f"Post not found for deletion: ID {id}")
+            flash('Post not found')
+            return redirect(url_for('admin_posts'))
+
+        post.deleted = True
+        db.session.commit()
+        
+        logger.info(f"Post marked as deleted: ID {id}")
+        flash('Post deleted successfully')
+        return redirect(url_for('admin_posts'))
+    except Exception as e:
+        logger.error(f"Error deleting post ID {id}: {str(e)}")
+        db.session.rollback()
+        raise

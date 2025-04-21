@@ -12,6 +12,11 @@ from database import db
 from util import *
 import sqlite3
 import config
+import logging
+from logging.handlers import RotatingFileHandler
+import os
+from datetime import datetime
+
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -47,9 +52,8 @@ login_manager.login_message_category = "error"
 
 # Пример базы данных пользователей
 users = {
-    1: User(1, 'admin', generate_password_hash('password')),
+    1: User(1, 'admin', generate_password_hash('password')),# перенести в .env 
 }
-
 
 # Загрузчик пользователя
 @login_manager.user_loader
@@ -71,7 +75,6 @@ def login():
             flash('Неверное имя пользователя или пароль', 'error')
     return render_template('login.html')
 
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -89,7 +92,6 @@ def logout():
     flash('Вы успешно вышли!', 'success')
     return response
 
-
 @app.after_request
 def add_no_cache_headers(response):
     # Запрет кеширования для всех страниц
@@ -104,7 +106,6 @@ def inject_version():
     # Автоматическая версия для статики
     return dict(version=datetime.now().timestamp())
 
-
 @login_required
 @app.route('/admin/dashboard')
 def admin_dashboard():
@@ -116,12 +117,108 @@ def admin_boards():
     boards = db.session.query(Boards).all()
     return render_template('admin_boards.html', boards=boards)
 
+
+
+# Настройка логирования
+def setup_logging():
+    # Создаем папку для логов если ее нет
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    
+    # Формат логов
+    log_format = '%(asctime)s - %(levelname)s - %(message)s [in %(pathname)s:%(lineno)d]'
+    formatter = logging.Formatter(log_format)
+    
+    # Файловый обработчик с ротацией
+    file_handler = RotatingFileHandler(
+        'logs/application.log',
+        maxBytes=1024 * 1024 * 5,  # 5MB
+        backupCount=5
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.INFO)
+    
+    # Обработчик для вывода в консоль
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.DEBUG if app.debug else logging.INFO)
+    
+    # Настройка логгера приложения
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.addHandler(file_handler)
+    app.logger.addHandler(console_handler)
+    
+    # Логирование SQLAlchemy
+    sql_logger = logging.getLogger('sqlalchemy.engine')
+    sql_logger.setLevel(logging.WARNING)
+    
+    app.logger.info('Application startup at %s', datetime.now())
+
+# Вызываем настройку логирования после создания app
+setup_logging()
+
+# Утилита для логирования действий
+def log_action(action, details=None, level='info'):
+    user = current_user.username if current_user.is_authenticated else 'Anonymous'
+    ip = request.remote_addr
+    message = f"User: {user}, IP: {ip}, Action: {action}"
+    if details:
+        message += f", Details: {details}"
+    
+    if level == 'info':
+        app.logger.info(message)
+    elif level == 'warning':
+        app.logger.warning(message)
+    elif level == 'error':
+        app.logger.error(message)
+    elif level == 'critical':
+        app.logger.critical(message)
+
+# Пример добавления логирования в маршруты
 @app.route('/admin/boards/create', methods=['GET', 'POST'])
 @login_required
 def admin_create_board():
+    if not current_user.is_admin:
+        log_action("Unauthorized access attempt", "Tried to create board", 'warning')
+        flash('Access denied', 'error')
+        return redirect(url_for('index'))
+    
     if request.method == 'POST':
-        return create_board()
-    return render_template('admin_create_board.html')
+        name = request.form.get('name')
+        description = request.form.get('description')
+        
+        if not name:
+            log_action("Board creation failed", "Missing name", 'warning')
+            flash('Board name is required', 'error')
+            return redirect(url_for('admin_create_board'))
+        
+        existing_board = Boards.query.filter_by(name=name).first()
+        if existing_board:
+            log_action("Board creation failed", f"Board {name} already exists", 'warning')
+            flash('Board with this name already exists', 'error')
+            return redirect(url_for('admin_create_board'))
+        
+        new_board = Boards(name=name, description=description)
+        db.session.add(new_board)
+        db.session.commit()
+        
+        log_action("Board created", f"Name: {name}")
+        flash('Board created successfully!', 'success')
+        return redirect(url_for('admin_boards'))
+    
+    return render_template('admin/boards/create.html')
+
+# Добавляем логирование в обработчики ошибок
+@app.errorhandler(404)
+def page_not_found(e):
+    log_action("404 Not Found", f"Path: {request.path}", 'warning')
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    log_action("500 Internal Server Error", f"Path: {request.path}\nError: {str(e)}", 'error')
+    return render_template('errors/500.html'), 500
+
 
 @login_required
 @app.route('/admin/boards/edit/<name>', methods=['GET', 'POST'])
