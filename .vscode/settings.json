@@ -1,0 +1,5 @@
+{
+    "docwriter.style": "GoDoc",
+    "docwriter.progress.trackMethods": false,
+    "docwriter.progress.trackClasses": true
+}

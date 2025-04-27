@@ -11,8 +11,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-
 def board_inexistent(name: str):
     
     if name not in BOARDS:

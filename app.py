@@ -2,6 +2,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from flask import Flask, request, redirect, render_template, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, PasswordField, SubmitField
+from logging.handlers import RotatingFileHandler
 from wtforms.validators import DataRequired
 from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
@@ -11,17 +12,18 @@ from datetime import datetime
 from database import db
 from util import *
 import sqlite3
-import config
 import logging
-from logging.handlers import RotatingFileHandler
+import config
 import os
-from datetime import datetime
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
-# socketio = SocketIO(app, async_mode="threading")
+socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*")
+executor = ThreadPoolExecutor(max_workers=4)
 
 with app.app_context():
     db.create_all()
@@ -49,11 +51,6 @@ login_manager.login_view = '/login'
 login_manager.login_message = "Пожалуйста, войдите, чтобы получить доступ к этой странице."
 login_manager.login_message_category = "error"
 
-
-# Пример базы данных пользователей
-users = {
-    1: User(1, 'admin', generate_password_hash('password')),# перенести в .env 
-}
 
 # Загрузчик пользователя
 @login_manager.user_loader
@@ -335,16 +332,32 @@ def show_thread(board, id):
 
     return render_template('show_thread.html', entries=OP + replies, board=board, id=id, sidebar=sidebar)
 
+@socketio.on('new_post')
+def handle_new_post(data):
+    board = data['board']
+    thread = data.get('thread')
+    emit('post_added', {'board': board, 'thread': thread}, broadcast=True)
+
+@socketio.on('new_reply')
+def handle_new_reply(data):
+    board = data['board']
+    thread = data['thread']
+    emit('reply_added', {'board': board, 'thread': thread}, broadcast=True)
+
 @app.route('/add', methods=['POST'])
 def new_thread():
     board = request.form['board']
     if no_image():
         return redirect('/' + board + '/')
 
-    newPost = new_post(board)
-    newPost.last_bump = datetime.now()
-    db.session.add(newPost)
-    db.session.commit()
+    def process_new_thread():
+        newPost = new_post(board)
+        newPost.last_bump = datetime.now()
+        db.session.add(newPost)
+        db.session.commit()
+        socketio.emit('new_post', {'board': board})
+
+    executor.submit(process_new_thread)
     return redirect('/' + board + '/')
 
 @app.route('/add_reply', methods=['POST'])
@@ -352,16 +365,20 @@ def add_reply():
     board = request.form['board']
     thread = request.form['op_id']
     subject = request.form['subject']
-    print(thread, board, subject)
+    
     if no_content_or_image():
         return redirect('/' + board + '/')
 
-    newPost = new_post(board, thread)
-    db.session.add(newPost)
-    if reply_count(thread) < BUMP_LIMIT:
-        bump_thread(thread)
-    db.session.commit()
-    return redirect('/' + board + '/') #+ thread)
+    def process_new_reply():
+        newPost = new_post(board, thread)
+        db.session.add(newPost)
+        if reply_count(thread) < BUMP_LIMIT:
+            bump_thread(thread)
+        db.session.commit()
+        socketio.emit('new_reply', {'board': board, 'thread': thread})
+
+    executor.submit(process_new_reply)
+    return redirect('/' + board + '/')
 
 # Функция для сохранения данных о посетителе в базу данных
 def save_visitor(ip_address, user_agent):
@@ -390,4 +407,4 @@ if __name__ == '__main__':
     create_db()
     print(' * Running on http://localhost:5000/ (Press Ctrl-C to quit)')
     print(' * Database is', app.config['SQLALCHEMY_DATABASE_URI'])
-    app.run(debug=True)
+    socketio.run(app, debug=True)
