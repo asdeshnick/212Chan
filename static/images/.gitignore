@@ -3,3 +3,10 @@
 
 *
 !.gitignore
+.png
+.jpg
+.gif
+.bmp
+.ico
+.svg
+.webp
